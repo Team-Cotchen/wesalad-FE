@@ -2,10 +2,30 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import logo from 'assets/images/logo.png';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { setModalVisible } from '../redux/reducers/joinSlice';
+import { RootState } from '../redux/store';
+import Modal from './Modal/Modal';
+import LoginModal from '../pages/Login/Login';
 
 const Nav = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(true);
   const navigate = useNavigate();
+
+  const dispatch = useDispatch();
+  const modalVisible = useSelector(
+    (state: RootState) => state.join.modalVisible,
+  );
+
+  const openModal = () => {
+    document.body.style.overflow = 'hidden';
+    dispatch(setModalVisible(true));
+  };
+
+  const closeModal = () => {
+    document.body.style.overflow = 'auto';
+    dispatch(setModalVisible(false));
+  };
 
   const checkIfLoggedIn = () => {
     if (!isLoggedIn) {
@@ -13,6 +33,8 @@ const Nav = () => {
     }
     navigate('/creation');
   };
+
+  console.log(modalVisible);
 
   return (
     <Wrapper>
@@ -23,9 +45,12 @@ const Nav = () => {
         </NavLeft>
         <NavRight>
           <NewPost onClick={() => checkIfLoggedIn()}>새 글 쓰기</NewPost>
-          <Login>로그인</Login>
+          <Login onClick={openModal}>로그인</Login>
         </NavRight>
       </NavBox>
+      <Modal name="login" onClose={closeModal} visible={modalVisible}>
+        <LoginModal></LoginModal>
+      </Modal>
     </Wrapper>
   );
 };
