@@ -5,6 +5,18 @@ const theme: DefaultTheme = {
   lightGreen: '#55B976',
   mainViolet: '#693BFB',
 
+  fontLarge: '48px',
+  fontMedium: '28px',
+  fontSemiMedium: '20px',
+  fontRegular: '18px',
+  fontSmall: '16px',
+  fontMicro: '14px',
+
+  weightBold: 700,
+  weightSemiBold: 600,
+  weightMiddle: 500,
+  weightRegular: 400,
+
   flexMixIn: (justify: string, align: string) => `
     display: flex;
     justify-content: ${justify};

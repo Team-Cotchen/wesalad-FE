@@ -6,6 +6,18 @@ declare module 'styled-components' {
     lightGreen: string;
     mainViolet: string;
 
+    fontLarge: string;
+    fontMedium: string;
+    fontSemiMedium: string;
+    fontRegular: string;
+    fontSmall: string;
+    fontMicro: string;
+
+    weightBold: number;
+    weightSemiBold: number;
+    weightMiddle: number;
+    weightRegular: number;
+
     flexMixIn: object;
   }
 }
