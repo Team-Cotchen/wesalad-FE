@@ -4,6 +4,7 @@ import Detail from 'pages/Detail/Detail';
 import Login from 'pages/Login/Login';
 import Join from 'pages/Join/Join';
 import Main from 'pages/Main/Main';
+import Creation from 'pages/Creation/Creation';
 
 const Router = () => {
   return (
@@ -13,6 +14,7 @@ const Router = () => {
         <Route path="/detail" element={<Detail />} />
         <Route path="/login" element={<Login />} />
         <Route path="/join" element={<Join />} />
+        <Route path="/creation" element={<Creation />} />
       </Routes>
     </BrowserRouter>
   );

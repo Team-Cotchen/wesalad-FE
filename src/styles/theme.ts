@@ -22,5 +22,11 @@ const theme: DefaultTheme = {
     justify-content: ${justify};
     align-items: ${align};
   `,
+
+  wrapper: (width = '1040px', margin = '0px') => `
+  width : ${width};
+  margin : ${margin} auto;
+  `,
 };
+
 export default theme;
