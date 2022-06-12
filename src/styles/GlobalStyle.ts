@@ -8,7 +8,6 @@ ${reset}
   box-sizing: border-box; 
   outline: none;
   font-family: 'Jua', sans-serif;
-  /* font-family: ‘Black Han Sans’, sans-serif; */
 }
 
 img{

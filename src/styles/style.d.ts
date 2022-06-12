@@ -18,7 +18,7 @@ declare module 'styled-components' {
     weightMiddle: number;
     weightRegular: number;
 
-    flexMixIn: object;
+    flexMixIn: function;
     wrapper: function;
   }
 }
