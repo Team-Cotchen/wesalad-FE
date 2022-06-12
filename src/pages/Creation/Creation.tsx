@@ -507,7 +507,6 @@ const BasicInfo = styled.div`
 `;
 
 const Title = styled.h1`
-  font-family: 'Jua', sans-serif;
   font-size: 35px;
 `;
 
@@ -587,7 +586,6 @@ const ContactInput = styled.input`
 
 const TagBox = styled.div`
   position: relative;
-  font-family: 'Jua', sans-serif;
   padding: 0 10px;
   transform: translate(270px, -30px);
   width: 100%;

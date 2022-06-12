@@ -1,4 +1,4 @@
-export const BASE_URL = 'http://172.30.60.3:8000';
+export const BASE_URL = 'http://192.168.100.27:8000';
 const API = {
   checkToken: `${BASE_URL}/accounts/`,
   signup: `${BASE_URL}/accounts/signup`,
