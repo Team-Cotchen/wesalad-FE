@@ -23,8 +23,7 @@ const Card: FunctionComponent<CardProps> = ({
 
 export default Card;
 
-const CardWrapper = styled.div<{ isSelected?: boolean; ingredient?: string }>`
-  font-family: 'Jua', sans-serif;
+const CardWrapper = styled.div<{ isSelected?: boolean }>`
   display: inline-block;
   flex: 1;
   padding: 10px;
