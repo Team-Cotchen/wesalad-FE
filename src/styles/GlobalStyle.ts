@@ -7,6 +7,9 @@ ${reset}
 * {
   box-sizing: border-box; 
   outline: none;
+}
+
+body{
   font-family: 'Jua', sans-serif;
 }
 
