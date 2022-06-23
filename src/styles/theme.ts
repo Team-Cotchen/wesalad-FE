@@ -4,6 +4,7 @@ const theme: DefaultTheme = {
   mainGreen: '#2DE466',
   lightGreen: '#55B976',
   mainViolet: '#693BFB',
+  lightGray: '#dfe1e6',
 
   fontLarge: '48px',
   fontMedium: '28px',
