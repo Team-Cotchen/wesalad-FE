@@ -13,6 +13,7 @@ import { AiFillCheckCircle } from 'react-icons/ai';
 import { ImPointRight } from 'react-icons/im';
 
 import Card from '../../components/Card';
+import Nav from 'components/Nav';
 
 interface BasicInfoProps {
   type?: string;
@@ -97,279 +98,282 @@ const Creation: FunctionComponent = () => {
   };
 
   return (
-    <Wrapper>
-      {isModalOpen && (
-        <CreationModal
-          setIsModalOpen={setIsModalOpen}
-          selectedAllCards={selectedAllCards}
-          setSelectedAllCards={setSelectedAllCards}
-          selectedMainCards={selectedMainCards}
-          setSelectedMainCards={setSelectedMainCards}
-        />
-      )}
-      <BasicInfo>
-        <Title>
-          <Num>1</Num>원하는 프로젝트 레시피를 알려주세요.
-        </Title>
-        <Line></Line>
-        <Main>
-          <SelectList>
-            <ListItem>
-              <Label>
-                <AiFillCheckCircle />
-                &nbsp; 프로젝트 타입
-              </Label>
-              <StyledSelect
-                defaultValue="스터디/프로젝트"
-                bordered={false}
-                onChange={(value) => handleBasicInfo(value, 'type')}
-              >
-                <Option value="study" name="study">
-                  스터디
-                </Option>
-                <Option value="project" name="study">
-                  프로젝트
-                </Option>
-              </StyledSelect>
-            </ListItem>
-            <ListItem>
-              <Label>
-                <AiFillCheckCircle />
-                &nbsp; 진행 방식
-              </Label>
-              <StyledSelect
-                defaultValue="온라인/오프라인"
-                bordered={false}
-                onChange={(value) => handleBasicInfo(value, 'process')}
-              >
-                <Option value="online">온라인</Option>
-                <Option value="offline">오프라인</Option>
-              </StyledSelect>
-            </ListItem>
-            <ListItem>
-              <Label>
-                <AiFillCheckCircle />
-                &nbsp; 기술 스택
-              </Label>
-              <StyledSelect
-                placeholder="사용할 기술 스택을 골라주세요."
-                defaultValue={['javascript']}
-                bordered={false}
-                mode="multiple"
-                optionLabelProp="label"
-                showArrow
-                onChange={(value) => handleBasicInfo(value, 'technologies')}
-              >
-                <Option value="javascript">Javascript</Option>
-                <Option value="typescript">Typescript</Option>
-                <Option value="react">React</Option>
-                <Option value="vue">Vue</Option>
-                <Option value="node.js">Node.js</Option>
-                <Option value="spring">Spring</Option>
-                <Option value="java">Java</Option>
-                <Option value="next.js">Next.js</Option>
-                <Option value="express">Express</Option>
-                <Option value="go">Go</Option>
-                <Option value="c">C</Option>
-                <Option value="python">Python</Option>
-                <Option value="django">Django</Option>
-                <Option value="swift">Swift</Option>
-                <Option value="kotlin">Kotlin</Option>
-                <Option value="mysql">MySQL</Option>
-                <Option value="mongodb">MongoDB</Option>
-                <Option value="php">php</Option>
-                <Option value="graphql">GraphQL</Option>
-                <Option value="firebase">Firebase</Option>
-                <Option value="reactnative">ReactNative</Option>
-                <Option value="unity">Unity</Option>
-                <Option value="flutter">Flutter</Option>
-                <Option value="aws">AWS</Option>
-                <Option value="kubernetes">Kubernetes</Option>
-                <Option value="docker">Docker</Option>
-                <Option value="git">Git</Option>
-                <Option value="figma">Figma</Option>
-                <Option value="zeplin">Zeplin</Option>
-              </StyledSelect>
-            </ListItem>
-            <ListItem>
-              <Label>
-                <AiFillCheckCircle />
-                &nbsp; 프론트 엔드 모집 인원
-              </Label>
-              <StyledSelect
-                defaultValue="인원 미정 ~ 5명 이상"
-                bordered={false}
-                onChange={(value) => handleBasicInfo(value, 'frontNum')}
-              >
-                <Option value="none">인원 미정</Option>
-                <Option value="1">1명</Option>
-                <Option value="2">2명</Option>
-                <Option value="3">3명</Option>
-                <Option value="4">4명</Option>
-                <Option value="5">5명 이상</Option>
-              </StyledSelect>
-            </ListItem>
-            <ListItem>
-              <Label>
-                <AiFillCheckCircle />
-                &nbsp; 백엔드 모집 인원
-              </Label>
-              <StyledSelect
-                defaultValue="인원 미정 ~ 5명 이상"
-                bordered={false}
-                onChange={(value) => handleBasicInfo(value, 'backNum')}
-              >
-                <Option value="none">인원 미정</Option>
-                <Option value="1">1명</Option>
-                <Option value="2">2명</Option>
-                <Option value="3">3명</Option>
-                <Option value="4">4명</Option>
-                <Option value="5">5명 이상</Option>
-              </StyledSelect>
-            </ListItem>
-            <ListItem>
-              <Label>
-                <AiFillCheckCircle />
-                &nbsp; 진행 기간
-              </Label>
-              <StyledSelect
-                defaultValue="기간 미정 ~ 6개월 이상"
-                bordered={false}
-                onChange={(value) => handleBasicInfo(value, 'period')}
-              >
-                <Option value="undefined">기간 미정</Option>
-                <Option value="2weeks">2주 이내</Option>
-                <Option value="1month">1개월</Option>
-                <Option value="2months">2개월</Option>
-                <Option value="3months">3개월</Option>
-                <Option value="4months">4개월</Option>
-                <Option value="5months">5개월</Option>
-                <Option value="6months">6개월 이상</Option>
-              </StyledSelect>
-            </ListItem>
-            <ListItem>
-              <Label>
-                <AiFillCheckCircle />
-                &nbsp; 시작 예정일
-              </Label>
-              <StyledDatePicker
-                placeholder="날짜를 골라주세요."
-                onChange={(value) =>
-                  handleBasicInfo(JSON.stringify(value), 'date')
-                }
-              />
-            </ListItem>
-            <ListItem>
-              <Label>
-                <AiFillCheckCircle />
-                &nbsp; 연락 방법
-              </Label>
-              <StyledSelect
-                defaultValue="카카오톡 오픈 채팅"
-                bordered={false}
-                onSelect={changeContactInput}
-                onChange={(value) => handleBasicInfo(value, 'contact')}
-              >
-                <Option value="open-chatting">카카오톡 오픈채팅</Option>
-                <Option value="email">이메일</Option>
-                <Option value="text">문자메세지</Option>
-              </StyledSelect>
-              <ContactInput
-                placeholder={contactInput}
-                onChange={(e) =>
-                  handleBasicInfo(e.target.value, 'contactDetail')
-                }
-              />
-            </ListItem>
-            <ListItem>
-              <Label>
-                <AiFillCheckCircle />
-                &nbsp; 우리 팀 성향
-              </Label>
-              <TagBox>
-                <Button onClick={openModal}>
-                  <ImPointRight /> &nbsp;
-                  {selectedMainCards.length === 0
-                    ? '팀 성향 고르기 Click!'
-                    : '다시 고르기 Click!'}
-                </Button>
-                <CardList>
-                  {allCards?.map(({ ingredient, name }, index) => (
-                    <Card
-                      id={name}
-                      key={name + index}
-                      ingredient={ingredient}
-                      name={name}
-                      size={'small'}
-                    />
-                  ))}
-                </CardList>
-              </TagBox>
-            </ListItem>
-          </SelectList>
-          <ControlBox>
-            <ControlTitle>프로젝트 맵기 조절</ControlTitle>
-            <ControlList onClick={handleControl}>
-              <ControlListItem>
-                <StyledCheckbox name="매운맛"></StyledCheckbox>
-                <Description>
-                  <div>
-                    매운 맛
-                    <Chili />
-                    <Chili />
-                    <Chili />
-                  </div>
-                  <span>주 00 시간 이상</span>
-                </Description>
-              </ControlListItem>
-              <ControlListItem>
-                <StyledCheckbox name="중간맛"></StyledCheckbox>
-                <Description>
-                  <div>
-                    중간 맛 <Chili />
-                    <Chili />
-                  </div>
-                  <span>주 00 시간 ~ 00시간</span>
-                </Description>
-              </ControlListItem>
-              <ControlListItem>
-                <StyledCheckbox name="순한맛"></StyledCheckbox>
-                <Description>
-                  <div>
-                    순한 맛 <GreenChili />
-                  </div>
-                  <span>주 00 시간 이하</span>
-                </Description>
-              </ControlListItem>
-            </ControlList>
-          </ControlBox>
-        </Main>
-      </BasicInfo>
+    <>
+      <Nav />
+      <Wrapper>
+        {isModalOpen && (
+          <CreationModal
+            setIsModalOpen={setIsModalOpen}
+            selectedAllCards={selectedAllCards}
+            setSelectedAllCards={setSelectedAllCards}
+            selectedMainCards={selectedMainCards}
+            setSelectedMainCards={setSelectedMainCards}
+          />
+        )}
+        <BasicInfo>
+          <Title>
+            <Num>1</Num>원하는 프로젝트 레시피를 알려주세요.
+          </Title>
+          <Line></Line>
+          <Main>
+            <SelectList>
+              <ListItem>
+                <Label>
+                  <AiFillCheckCircle />
+                  &nbsp; 프로젝트 타입
+                </Label>
+                <StyledSelect
+                  defaultValue="스터디/프로젝트"
+                  bordered={false}
+                  onChange={(value) => handleBasicInfo(value, 'type')}
+                >
+                  <Option value="study" name="study">
+                    스터디
+                  </Option>
+                  <Option value="project" name="study">
+                    프로젝트
+                  </Option>
+                </StyledSelect>
+              </ListItem>
+              <ListItem>
+                <Label>
+                  <AiFillCheckCircle />
+                  &nbsp; 진행 방식
+                </Label>
+                <StyledSelect
+                  defaultValue="온라인/오프라인"
+                  bordered={false}
+                  onChange={(value) => handleBasicInfo(value, 'process')}
+                >
+                  <Option value="online">온라인</Option>
+                  <Option value="offline">오프라인</Option>
+                </StyledSelect>
+              </ListItem>
+              <ListItem>
+                <Label>
+                  <AiFillCheckCircle />
+                  &nbsp; 기술 스택
+                </Label>
+                <StyledSelect
+                  placeholder="사용할 기술 스택을 골라주세요."
+                  defaultValue={['javascript']}
+                  bordered={false}
+                  mode="multiple"
+                  optionLabelProp="label"
+                  showArrow
+                  onChange={(value) => handleBasicInfo(value, 'technologies')}
+                >
+                  <Option value="javascript">Javascript</Option>
+                  <Option value="typescript">Typescript</Option>
+                  <Option value="react">React</Option>
+                  <Option value="vue">Vue</Option>
+                  <Option value="node.js">Node.js</Option>
+                  <Option value="spring">Spring</Option>
+                  <Option value="java">Java</Option>
+                  <Option value="next.js">Next.js</Option>
+                  <Option value="express">Express</Option>
+                  <Option value="go">Go</Option>
+                  <Option value="c">C</Option>
+                  <Option value="python">Python</Option>
+                  <Option value="django">Django</Option>
+                  <Option value="swift">Swift</Option>
+                  <Option value="kotlin">Kotlin</Option>
+                  <Option value="mysql">MySQL</Option>
+                  <Option value="mongodb">MongoDB</Option>
+                  <Option value="php">php</Option>
+                  <Option value="graphql">GraphQL</Option>
+                  <Option value="firebase">Firebase</Option>
+                  <Option value="reactnative">ReactNative</Option>
+                  <Option value="unity">Unity</Option>
+                  <Option value="flutter">Flutter</Option>
+                  <Option value="aws">AWS</Option>
+                  <Option value="kubernetes">Kubernetes</Option>
+                  <Option value="docker">Docker</Option>
+                  <Option value="git">Git</Option>
+                  <Option value="figma">Figma</Option>
+                  <Option value="zeplin">Zeplin</Option>
+                </StyledSelect>
+              </ListItem>
+              <ListItem>
+                <Label>
+                  <AiFillCheckCircle />
+                  &nbsp; 프론트 엔드 모집 인원
+                </Label>
+                <StyledSelect
+                  defaultValue="인원 미정 ~ 5명 이상"
+                  bordered={false}
+                  onChange={(value) => handleBasicInfo(value, 'frontNum')}
+                >
+                  <Option value="none">인원 미정</Option>
+                  <Option value="1">1명</Option>
+                  <Option value="2">2명</Option>
+                  <Option value="3">3명</Option>
+                  <Option value="4">4명</Option>
+                  <Option value="5">5명 이상</Option>
+                </StyledSelect>
+              </ListItem>
+              <ListItem>
+                <Label>
+                  <AiFillCheckCircle />
+                  &nbsp; 백엔드 모집 인원
+                </Label>
+                <StyledSelect
+                  defaultValue="인원 미정 ~ 5명 이상"
+                  bordered={false}
+                  onChange={(value) => handleBasicInfo(value, 'backNum')}
+                >
+                  <Option value="none">인원 미정</Option>
+                  <Option value="1">1명</Option>
+                  <Option value="2">2명</Option>
+                  <Option value="3">3명</Option>
+                  <Option value="4">4명</Option>
+                  <Option value="5">5명 이상</Option>
+                </StyledSelect>
+              </ListItem>
+              <ListItem>
+                <Label>
+                  <AiFillCheckCircle />
+                  &nbsp; 진행 기간
+                </Label>
+                <StyledSelect
+                  defaultValue="기간 미정 ~ 6개월 이상"
+                  bordered={false}
+                  onChange={(value) => handleBasicInfo(value, 'period')}
+                >
+                  <Option value="undefined">기간 미정</Option>
+                  <Option value="2weeks">2주 이내</Option>
+                  <Option value="1month">1개월</Option>
+                  <Option value="2months">2개월</Option>
+                  <Option value="3months">3개월</Option>
+                  <Option value="4months">4개월</Option>
+                  <Option value="5months">5개월</Option>
+                  <Option value="6months">6개월 이상</Option>
+                </StyledSelect>
+              </ListItem>
+              <ListItem>
+                <Label>
+                  <AiFillCheckCircle />
+                  &nbsp; 시작 예정일
+                </Label>
+                <StyledDatePicker
+                  placeholder="날짜를 골라주세요."
+                  onChange={(value) =>
+                    handleBasicInfo(JSON.stringify(value), 'date')
+                  }
+                />
+              </ListItem>
+              <ListItem>
+                <Label>
+                  <AiFillCheckCircle />
+                  &nbsp; 연락 방법
+                </Label>
+                <StyledSelect
+                  defaultValue="카카오톡 오픈 채팅"
+                  bordered={false}
+                  onSelect={changeContactInput}
+                  onChange={(value) => handleBasicInfo(value, 'contact')}
+                >
+                  <Option value="open-chatting">카카오톡 오픈채팅</Option>
+                  <Option value="email">이메일</Option>
+                  <Option value="text">문자메세지</Option>
+                </StyledSelect>
+                <ContactInput
+                  placeholder={contactInput}
+                  onChange={(e) =>
+                    handleBasicInfo(e.target.value, 'contactDetail')
+                  }
+                />
+              </ListItem>
+              <ListItem>
+                <Label>
+                  <AiFillCheckCircle />
+                  &nbsp; 우리 팀 성향
+                </Label>
+                <TagBox>
+                  <Button onClick={openModal}>
+                    <ImPointRight /> &nbsp;
+                    {selectedMainCards.length === 0
+                      ? '팀 성향 고르기 Click!'
+                      : '다시 고르기 Click!'}
+                  </Button>
+                  <CardList>
+                    {allCards?.map(({ ingredient, name }, index) => (
+                      <Card
+                        id={name}
+                        key={name + index}
+                        ingredient={ingredient}
+                        name={name}
+                        size={'small'}
+                      />
+                    ))}
+                  </CardList>
+                </TagBox>
+              </ListItem>
+            </SelectList>
+            <ControlBox>
+              <ControlTitle>프로젝트 맵기 조절</ControlTitle>
+              <ControlList onClick={handleControl}>
+                <ControlListItem>
+                  <StyledCheckbox name="매운맛"></StyledCheckbox>
+                  <Description>
+                    <div>
+                      매운 맛
+                      <Chili />
+                      <Chili />
+                      <Chili />
+                    </div>
+                    <span>주 00 시간 이상</span>
+                  </Description>
+                </ControlListItem>
+                <ControlListItem>
+                  <StyledCheckbox name="중간맛"></StyledCheckbox>
+                  <Description>
+                    <div>
+                      중간 맛 <Chili />
+                      <Chili />
+                    </div>
+                    <span>주 00 시간 ~ 00시간</span>
+                  </Description>
+                </ControlListItem>
+                <ControlListItem>
+                  <StyledCheckbox name="순한맛"></StyledCheckbox>
+                  <Description>
+                    <div>
+                      순한 맛 <GreenChili />
+                    </div>
+                    <span>주 00 시간 이하</span>
+                  </Description>
+                </ControlListItem>
+              </ControlList>
+            </ControlBox>
+          </Main>
+        </BasicInfo>
 
-      <DetailInfo>
-        <Title>
-          <Num>2</Num>프로젝트에 대해 소개해주세요.
-        </Title>
-        <Line></Line>
-        <Label>제목</Label>
-        <TitleInput
-          type="text"
-          name="title"
-          onChange={handleDetailInfo}
-          value={detailInfo.title}
-        ></TitleInput>
-        <Label>자세한 소개</Label>
-        <Textarea
-          name="description"
-          onChange={handleDetailInfo}
-          value={detailInfo.description}
-        ></Textarea>
-        <ButtonBox>
-          <StyledButton mode="cancle">취소</StyledButton>
-          <StyledButton mode="submit">등록</StyledButton>
-        </ButtonBox>
-      </DetailInfo>
-    </Wrapper>
+        <DetailInfo>
+          <Title>
+            <Num>2</Num>프로젝트에 대해 소개해주세요.
+          </Title>
+          <Line></Line>
+          <Label>제목</Label>
+          <TitleInput
+            type="text"
+            name="title"
+            onChange={handleDetailInfo}
+            value={detailInfo.title}
+          ></TitleInput>
+          <Label>자세한 소개</Label>
+          <Textarea
+            name="description"
+            onChange={handleDetailInfo}
+            value={detailInfo.description}
+          ></Textarea>
+          <ButtonBox>
+            <StyledButton mode="cancle">취소</StyledButton>
+            <StyledButton mode="submit">등록</StyledButton>
+          </ButtonBox>
+        </DetailInfo>
+      </Wrapper>
+    </>
   );
 };
 
