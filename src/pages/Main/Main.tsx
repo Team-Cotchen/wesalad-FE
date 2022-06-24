@@ -1,10 +1,16 @@
 import Nav from 'components/Nav';
-import React, { FunctionComponent } from 'react';
+import React, { FunctionComponent, useState } from 'react';
 import styled, { keyframes } from 'styled-components';
 import logo from 'assets/images/logo.png';
 import { AiOutlineCheck } from 'react-icons/ai';
+import { CARDS_DATA } from 'pages/Main/cardsdata';
+
+// interface PromocardsInterface {
+//   id: string;
+// }
 
 const Main: FunctionComponent = () => {
+  // const [promoCards, setPromoCards] = useState<PromocardsInterface>([]);
   return (
     <>
       <Nav />
@@ -38,39 +44,144 @@ const Main: FunctionComponent = () => {
             </HighlightLabel>
           </Head>
           <PromoCards>
-            <PromoCard>
-              <StackLogos>
-                <StackLogo>
-                  <Img src={logo} alt="" />
-                </StackLogo>
-                <StackLogo>
-                  <Img src={logo} alt="" />
-                </StackLogo>
-              </StackLogos>
-              <CardTitle>프로젝트 팀원 구해요</CardTitle>
-              <CardDescriptions>
-                <CardDescription>
-                  <DescriptionIcon>
-                    <AiOutlineCheck />
-                  </DescriptionIcon>
-                  <DescriptionText>오프라인 / 3개월</DescriptionText>
-                </CardDescription>
-                <CardDescription>
-                  <DescriptionIcon>
-                    <AiOutlineCheck />
-                  </DescriptionIcon>
-                  <DescriptionText>4명(프 2명 / 백 2명)</DescriptionText>
-                </CardDescription>
-                <CardDescription>
-                  <DescriptionIcon>
-                    <AiOutlineCheck />
-                  </DescriptionIcon>
-                  <DescriptionText>22.07.01 시작</DescriptionText>
-                </CardDescription>
-              </CardDescriptions>
-            </PromoCard>
-            <PromoCard></PromoCard>
-            <PromoCard></PromoCard>
+            {CARDS_DATA.map(
+              ({
+                id,
+                post_answer,
+                post_stack,
+                title,
+                number_of_front,
+                number_of_back,
+                period,
+                start_date,
+                post_place,
+              }) => (
+                <PromoCard key={id}>
+                  <StackLogos>
+                    {post_stack.map(({ stack }) => (
+                      <StackLogo key={stack.image_url}>
+                        <Img src={stack.image_url} alt={stack.title} />
+                      </StackLogo>
+                    ))}
+                  </StackLogos>
+                  <CardTitle>{title}</CardTitle>
+                  <CardDescriptions>
+                    <CardDescription>
+                      <DescriptionIcon>
+                        <AiOutlineCheck />
+                      </DescriptionIcon>
+                      <DescriptionText>
+                        {post_place[0].place.title} / {period}
+                      </DescriptionText>
+                    </CardDescription>
+                    <CardDescription>
+                      <DescriptionIcon>
+                        <AiOutlineCheck />
+                      </DescriptionIcon>
+                      <DescriptionText>
+                        {number_of_front + number_of_back}명(프{' '}
+                        {number_of_front}명 / 백 {number_of_back}명)
+                      </DescriptionText>
+                    </CardDescription>
+                    <CardDescription>
+                      <DescriptionIcon>
+                        <AiOutlineCheck />
+                      </DescriptionIcon>
+                      <DescriptionText>{start_date} 시작</DescriptionText>
+                    </CardDescription>
+                  </CardDescriptions>
+                  <ChacracterCardsWrapper>
+                    {post_answer.map(({ answer }, index) => (
+                      <ChacracterCardWrapper color="#693BFB" key={index}>
+                        <CharacterCardImg
+                          src={answer.image_url}
+                          alt={answer.description}
+                        />
+                        <ChacracterCardText>
+                          {answer.description}
+                        </ChacracterCardText>
+                      </ChacracterCardWrapper>
+                    ))}
+                  </ChacracterCardsWrapper>
+                </PromoCard>
+              ),
+            )}
+          </PromoCards>
+        </PromoBox>
+        <DivisionLineTwo />
+        <PromoBox>
+          <Head>
+            <Description>나에게 꼭 맞는 샐러드 찾아볼까요?</Description>
+            <HighlightLabel>내 취향에 맞는 샐러드 고르기</HighlightLabel>
+          </Head>
+          <FilterWrapper>
+            {FILTER_LIST.map(({ id, name }) => (
+              <FilterBtn key={id}>{name}</FilterBtn>
+            ))}
+          </FilterWrapper>
+          <PromoCards>
+            {CARDS_DATA.map(
+              ({
+                id,
+                post_answer,
+                post_stack,
+                title,
+                number_of_front,
+                number_of_back,
+                period,
+                start_date,
+                post_place,
+              }) => (
+                <RegularCard key={id}>
+                  <StackLogos>
+                    {post_stack.map(({ stack }) => (
+                      <StackLogo key={stack.image_url}>
+                        <Img src={stack.image_url} alt={stack.title} />
+                      </StackLogo>
+                    ))}
+                  </StackLogos>
+                  <CardTitle>{title}</CardTitle>
+                  <CardDescriptions>
+                    <CardDescription>
+                      <DescriptionIcon>
+                        <AiOutlineCheck />
+                      </DescriptionIcon>
+                      <DescriptionText>
+                        {post_place[0].place.title} / {period}
+                      </DescriptionText>
+                    </CardDescription>
+                    <CardDescription>
+                      <DescriptionIcon>
+                        <AiOutlineCheck />
+                      </DescriptionIcon>
+                      <DescriptionText>
+                        {number_of_front + number_of_back}명(프{' '}
+                        {number_of_front}명 / 백 {number_of_back}명)
+                      </DescriptionText>
+                    </CardDescription>
+                    <CardDescription>
+                      <DescriptionIcon>
+                        <AiOutlineCheck />
+                      </DescriptionIcon>
+                      <DescriptionText>{start_date} 시작</DescriptionText>
+                    </CardDescription>
+                  </CardDescriptions>
+                  <ChacracterCardsWrapper>
+                    {post_answer.map(({ answer }, index) => (
+                      <ChacracterCardWrapper color="#b9b9b9" key={index}>
+                        <CharacterCardImg
+                          src={answer.image_url}
+                          alt={answer.description}
+                        />
+                        <ChacracterCardText>
+                          {answer.description}
+                        </ChacracterCardText>
+                      </ChacracterCardWrapper>
+                    ))}
+                  </ChacracterCardsWrapper>
+                </RegularCard>
+              ),
+            )}
           </PromoCards>
         </PromoBox>
       </Wrapper>
@@ -248,7 +359,7 @@ const Head = styled.div`
 const HighlightLabel = styled.span`
   display: inline-block;
   color: black;
-  font-size: ${({ theme }) => theme.fontMedium};
+  font-size: 35px;
   line-height: 1.6em;
   margin-top: 10px;
   ::selection {
@@ -265,40 +376,39 @@ const PromoCards = styled.div`
 
 const PromoCard = styled.div`
   width: 33%;
-  height: 250px;
-  margin: 10px 15px 10px 0;
+  margin: 10px auto;
   padding: 20px 25px;
-  background-color: ${({ theme }) => theme.mainViolet};
+  border: 1px solid ${({ theme }) => theme.mainViolet};
   border-radius: 5px;
+  background-color: white;
 `;
 
 const StackLogos = styled.div`
   display: flex;
-  margin-bottom: 14px;
+  margin-bottom: 20px;
 `;
 
 const StackLogo = styled.div`
   height: 40px;
   width: 40px;
+  margin-right: 8px;
 `;
 
 const Img = styled.img`
   width: 100%;
   height: 100%;
-  background-color: ${({ theme }) => theme.mainViolet};
 `;
 
 const CardTitle = styled.div`
-  color: white;
   font-size: ${({ theme }) => theme.fontMedium};
+  line-height: 1.6em;
 `;
 
 const CardDescriptions = styled.div`
-  margin: 10px 10px;
+  margin: 15px 10px;
 `;
 
 const CardDescription = styled.div`
-  color: white;
   margin-bottom: 10px;
 `;
 
@@ -306,7 +416,10 @@ const DescriptionIcon = styled.span`
   margin-right: 5px;
 `;
 
-const DescriptionText = styled.span``;
+const DescriptionText = styled.span`
+  font-size: ${({ theme }) => theme.fontRegular};
+  color: #8e8e8e;
+`;
 
 const Description = styled.p`
   font-size: ${({ theme }) => theme.fontSmall};
@@ -314,3 +427,97 @@ const Description = styled.p`
   padding-left: 3px;
   letter-spacing: 3px;
 `;
+
+const ChacracterCardsWrapper = styled.div`
+  margin-top: 30px;
+`;
+
+const ChacracterCardWrapper = styled.div`
+  ${({ theme }) => theme.flexMixIn('center', 'center')};
+  margin: 10px;
+  padding: 7px;
+  border-radius: 5px;
+  border: 1px solid ${(props) => props.color};
+`;
+
+const CharacterCardImg = styled.img`
+  width: 30px;
+  height: 30px;
+`;
+const ChacracterCardText = styled.div`
+  font-size: ${({ theme }) => theme.fontSemiMedium};
+  margin-left: 5px;
+`;
+
+const DivisionLineTwo = styled(DivisionLine)`
+  background: linear-gradient(#693bfb, #2de466);
+`;
+
+const FilterWrapper = styled.ul``;
+
+const FilterBtn = styled.li`
+  display: inline-block;
+  margin-right: 10px;
+  padding: 15px 25px;
+  border-radius: 5px;
+  background-color: white;
+  border: 1px solid ${({ theme }) => theme.mainGreen};
+  font-size: ${({ theme }) => theme.fontSemiMedium};
+  cursor: pointer;
+
+  &:hover {
+    background-color: ${({ theme }) => theme.mainGreen};
+    color: black;
+  }
+
+  &:first-child {
+    background-color: ${({ theme }) => theme.mainGreen};
+  }
+`;
+
+const RegularCard = styled(PromoCard)`
+  border: 1px solid #b9b9b9;
+`;
+
+const FILTER_LIST = [
+  { id: 0, name: '모두 보기' },
+  { id: 1, name: '위샐러드 추천!' },
+  { id: 2, name: '매운맛' },
+  { id: 3, name: '중간맛' },
+  { id: 4, name: '순한맛' },
+  { id: 5, name: '프론트엔드' },
+  { id: 6, name: '백엔드' },
+  { id: 7, name: '기술 스택' },
+];
+
+const STACK_LIST = [
+  { id: 0, value: 'Javascript' },
+  { id: 1, value: 'Typescript' },
+  { id: 2, value: 'React' },
+  { id: 3, value: 'Vue' },
+  { id: 4, value: 'Node.js' },
+  { id: 5, value: 'Spring' },
+  { id: 6, value: 'Java' },
+  { id: 7, value: 'Next.js' },
+  { id: 8, value: 'Express' },
+  { id: 9, value: 'Go' },
+  { id: 10, value: 'C' },
+  { id: 11, value: 'Python' },
+  { id: 12, value: 'Django' },
+  { id: 13, value: 'Swift' },
+  { id: 14, value: 'Kotlin' },
+  { id: 15, value: 'MySQL' },
+  { id: 16, value: 'MongoDB' },
+  { id: 17, value: 'PHP' },
+  { id: 18, value: 'GraphQL' },
+  { id: 19, value: 'Firebase' },
+  { id: 20, value: 'ReactNative' },
+  { id: 21, value: 'Unity' },
+  { id: 22, value: 'Flutter' },
+  { id: 23, value: 'AWS' },
+  { id: 24, value: 'Kubernetes' },
+  { id: 25, value: 'Docker' },
+  { id: 26, value: 'Git' },
+  { id: 27, value: 'Figma' },
+  { id: 28, value: 'Zeplin' },
+];
