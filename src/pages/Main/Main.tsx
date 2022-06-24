@@ -29,6 +29,7 @@ const Main: FunctionComponent = () => {
             이번달 인기샐러드 구경하고 내 샐러드 찾으러 가보세요!
           </TitleText>
         </SubTitle>
+        <DivisionLine />
         <PromoBox>
           <Head>
             <Description>서두르세요! 한 자리 남았어요!</Description>
@@ -53,6 +54,18 @@ const Main: FunctionComponent = () => {
                     <AiOutlineCheck />
                   </DescriptionIcon>
                   <DescriptionText>오프라인 / 3개월</DescriptionText>
+                </CardDescription>
+                <CardDescription>
+                  <DescriptionIcon>
+                    <AiOutlineCheck />
+                  </DescriptionIcon>
+                  <DescriptionText>4명(프 2명 / 백 2명)</DescriptionText>
+                </CardDescription>
+                <CardDescription>
+                  <DescriptionIcon>
+                    <AiOutlineCheck />
+                  </DescriptionIcon>
+                  <DescriptionText>22.07.01 시작</DescriptionText>
                 </CardDescription>
               </CardDescriptions>
             </PromoCard>
@@ -215,39 +228,58 @@ const TitleText = styled.div`
   }
 `;
 
-const PromoBox = styled.div`
-  margin: 100px 70px;
+const DivisionLine = styled.div`
+  width: 2px;
+  display: block;
+  height: 100px;
+  background: linear-gradient(#2de466, #693bfb);
+  margin: 50px auto;
 `;
 
-const Head = styled.div``;
+const PromoBox = styled.div`
+  margin: 40px 30px;
+`;
+
+const Head = styled.div`
+  text-align: center;
+  color: #b9b9b9;
+`;
 
 const HighlightLabel = styled.span`
   display: inline-block;
-  background-color: black;
-  color: white;
-  margin-top: 5px;
-  padding: 10px;
+  color: black;
+  font-size: ${({ theme }) => theme.fontMedium};
+  line-height: 1.6em;
+  margin-top: 10px;
+  ::selection {
+    background-color: ${({ theme }) => theme.mainGreen};
+  }
 `;
 
 const PromoCards = styled.div`
+  width: 100%;
   margin-top: 15px;
   display: flex;
+  flex-wrap: wrap;
 `;
 
 const PromoCard = styled.div`
-  width: 350px;
+  width: 33%;
   height: 250px;
-  margin-right: 15px;
+  margin: 10px 15px 10px 0;
+  padding: 20px 25px;
   background-color: ${({ theme }) => theme.mainViolet};
+  border-radius: 5px;
 `;
 
 const StackLogos = styled.div`
   display: flex;
+  margin-bottom: 14px;
 `;
 
 const StackLogo = styled.div`
-  height: 50px;
-  width: 50px;
+  height: 40px;
+  width: 40px;
 `;
 
 const Img = styled.img`
@@ -258,22 +290,27 @@ const Img = styled.img`
 
 const CardTitle = styled.div`
   color: white;
-  font-weight: ${({ theme }) => theme.weightSemiBold};
-  font-size: ${({ theme }) => theme.fontSemiMedium};
+  font-size: ${({ theme }) => theme.fontMedium};
 `;
 
-const CardDescriptions = styled.div``;
+const CardDescriptions = styled.div`
+  margin: 10px 10px;
+`;
 
 const CardDescription = styled.div`
   color: white;
+  margin-bottom: 10px;
 `;
 
-const DescriptionIcon = styled.span``;
+const DescriptionIcon = styled.span`
+  margin-right: 5px;
+`;
 
 const DescriptionText = styled.span``;
 
 const Description = styled.p`
-  font-size: ${({ theme }) => theme.fontMicro};
+  font-size: ${({ theme }) => theme.fontSmall};
   padding-top: 5px;
   padding-left: 3px;
+  letter-spacing: 3px;
 `;
