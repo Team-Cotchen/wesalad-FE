@@ -33,18 +33,18 @@ const Nav = () => {
 export default Nav;
 
 const Wrapper = styled.div`
-  padding: 15px 0;
   position: fixed;
   top: 0;
-  z-index: 5;
   width: 100%;
+  z-index: 5;
+  padding: 15px 0;
   border-bottom: 1px solid #dfe1e6;
   background-color: white;
 `;
 
 const NavBox = styled.div`
-  padding: 0px 110px;
   ${({ theme }) => theme.flexMixIn('space-between', 'center')}
+  padding: 0px 110px;
 `;
 
 const NavLeft = styled.div`
@@ -56,14 +56,14 @@ const NavLeft = styled.div`
 `;
 
 const LogoImg = styled.img`
-  margin: 0 10px;
   width: 30px;
   height: 30px;
+  margin: 0 10px;
 `;
 
 const Logo = styled.span`
-  font-size: ${({ theme }) => theme.fontMedium};
   display: inline-block;
+  font-size: ${({ theme }) => theme.fontMedium};
 `;
 
 const NavRight = styled.div`
@@ -73,17 +73,18 @@ const NavRight = styled.div`
 const NewPost = styled.div`
   margin-right: 30px;
   font-size: ${({ theme }) => theme.fontRegular};
+
   &:hover {
     cursor: pointer;
   }
 `;
 
-const Login = styled.div`
-  font-size: ${({ theme }) => theme.fontRegular};
-  background-color: ${({ theme }) => theme.mainGreen};
+const Login = styled.button`
   padding: 7px 20px;
   border-radius: 5px;
   border: 1px solid ${({ theme }) => theme.mainGreen};
+  background-color: ${({ theme }) => theme.mainGreen};
+  font-size: ${({ theme }) => theme.fontRegular};
 
   &:hover {
     background-color: white;
