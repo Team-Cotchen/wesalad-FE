@@ -2,7 +2,7 @@ import React, { useState, FunctionComponent } from 'react';
 import { Select, DatePicker, Checkbox } from 'antd';
 const { Option } = Select;
 
-import 'antd/dist/antd.css';
+import 'antd/dist/antd.min.css';
 
 import styled from 'styled-components';
 import theme from '../../styles/theme';
