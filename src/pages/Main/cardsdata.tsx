@@ -246,7 +246,7 @@ export const CARDS_DATA = [
     user: 2,
   },
   {
-    id: 1,
+    id: 3,
     category: {
       title: '스터디',
     },

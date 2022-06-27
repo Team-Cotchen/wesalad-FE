@@ -13,7 +13,6 @@ import Nav from 'components/Nav';
 import { Editor } from '@tinymce/tinymce-react';
 import { Select, DatePicker, Checkbox, message } from 'antd';
 const { Option } = Select;
-import 'antd/dist/antd.css';
 import { ImPointRight } from 'react-icons/im';
 import { VscCircleOutline } from 'react-icons/vsc';
 
