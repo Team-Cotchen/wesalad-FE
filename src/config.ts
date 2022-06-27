@@ -6,4 +6,7 @@ const API = {
   login: `${BASE_URL}/accounts/login`,
 };
 
+export const TINYMCE_API_KEY =
+  'zxuiph9yiunvdp85dyzooockfmnnka538tzip74drjnbvoia';
+
 export default API;

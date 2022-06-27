@@ -1,3 +1,4 @@
+import { message } from 'antd';
 import React, {
   FunctionComponent,
   useState,
@@ -14,17 +15,17 @@ import { GrFormClose } from 'react-icons/gr';
 
 interface ModalProps {
   setIsModalOpen: Dispatch<SetStateAction<boolean>>;
-  selectedAllCards: string[];
-  selectedMainCards: string[];
-  setSelectedAllCards: Dispatch<SetStateAction<string[]>>;
-  setSelectedMainCards: Dispatch<SetStateAction<string[]>>;
+  additionalCards: string[];
+  primaryCards: string[];
+  setAdditionalCards: Dispatch<SetStateAction<string[]>>;
+  setPrimaryCards: Dispatch<SetStateAction<string[]>>;
 }
 
 const CreationModal: FunctionComponent<ModalProps> = ({
-  selectedAllCards,
-  selectedMainCards,
-  setSelectedAllCards,
-  setSelectedMainCards,
+  additionalCards,
+  primaryCards,
+  setAdditionalCards,
+  setPrimaryCards,
   setIsModalOpen,
 }: ModalProps) => {
   const [clickedModalIndex, setClickedModalIndex] = useState<number>(0);
@@ -33,33 +34,36 @@ const CreationModal: FunctionComponent<ModalProps> = ({
     setIsModalOpen(false);
   };
 
-  const handleMainCards = (selectedCard: string) => {
-    const isSelected = selectedMainCards.includes(selectedCard);
+  const handlePrimaryCards = (selectedCard: string) => {
+    const isPrimary = primaryCards.includes(selectedCard);
 
-    if (selectedMainCards.length <= 2) {
-      handleAllCards(selectedCard);
-      isSelected
-        ? setSelectedMainCards(
-            selectedMainCards.filter((item) => item !== selectedCard),
-          )
-        : setSelectedMainCards([...selectedMainCards, selectedCard]);
+    if (primaryCards.length <= 2) {
+      isPrimary
+        ? setPrimaryCards(primaryCards.filter((item) => item !== selectedCard))
+        : setPrimaryCards([...primaryCards, selectedCard]);
     }
 
-    if (selectedMainCards.length === 3 && isSelected) {
-      setSelectedMainCards(
-        selectedMainCards.filter((item) => item !== selectedCard),
+    if (primaryCards.length === 3 && isPrimary) {
+      setPrimaryCards(primaryCards.filter((item) => item !== selectedCard));
+    }
+
+    if (additionalCards.includes(selectedCard)) {
+      setAdditionalCards(
+        additionalCards.filter((item) => item !== selectedCard),
       );
     }
   };
 
-  const handleAllCards = (selectedCard: string) => {
-    const isSelected = selectedAllCards.includes(selectedCard);
+  const handleAdditionalCards = (selectedCard: string) => {
+    const isAdditional = additionalCards.includes(selectedCard);
 
-    isSelected
-      ? setSelectedAllCards(
-          selectedAllCards.filter((item) => item !== selectedCard),
-        )
-      : setSelectedAllCards([...selectedAllCards, selectedCard]);
+    if (!primaryCards.includes(selectedCard)) {
+      isAdditional
+        ? setAdditionalCards(
+            additionalCards.filter((item) => item !== selectedCard),
+          )
+        : setAdditionalCards([...additionalCards, selectedCard]);
+    }
   };
 
   const handleSelectedCards = (e: React.MouseEvent<HTMLElement>) => {
@@ -68,16 +72,21 @@ const CreationModal: FunctionComponent<ModalProps> = ({
     const selectedCard = selected?.id || 'card';
 
     clickedModalIndex === 0
-      ? handleMainCards(selectedCard)
-      : handleAllCards(selectedCard);
+      ? handlePrimaryCards(selectedCard)
+      : handleAdditionalCards(selectedCard);
   };
 
   const goToNextOption = () => {
-    if (selectedMainCards.length !== 3) {
-      alert('3가지의 메인 카드를 골라주세요.');
+    if (primaryCards.length !== 3) {
+      message.warn('3가지의 메인 카드를 골라주세요.');
       return;
     }
     setClickedModalIndex((prev) => prev + 1);
+  };
+
+  const showSuccessMsg = () => {
+    message.success('성향카드들이 선택되었습니다!');
+    closeModal();
   };
 
   return (
@@ -115,17 +124,20 @@ const CreationModal: FunctionComponent<ModalProps> = ({
                 ingredient={ingredient}
                 name={name}
                 handleSelectedCards={handleSelectedCards}
-                isSelected={
-                  clickedModalIndex === 0
-                    ? selectedMainCards.includes(name)
-                    : selectedAllCards.includes(name)
-                }
+                type={() => {
+                  if (primaryCards.includes(name)) return 'primary';
+                  else if (
+                    additionalCards.includes(name) &&
+                    clickedModalIndex === 1
+                  )
+                    return 'additional';
+                }}
               />
             ))}
           </CardBox>
         </Main>
         <SubmitBtn
-          onClick={clickedModalIndex === 0 ? goToNextOption : closeModal}
+          onClick={clickedModalIndex === 0 ? goToNextOption : showSuccessMsg}
         >
           선택 완료!
         </SubmitBtn>

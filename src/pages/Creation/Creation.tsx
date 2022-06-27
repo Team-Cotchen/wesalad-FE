@@ -1,57 +1,79 @@
+import axios from 'axios';
 import React, { useState, FunctionComponent } from 'react';
-import { Select, DatePicker, Checkbox } from 'antd';
-const { Option } = Select;
 
 import 'antd/dist/antd.min.css';
+import { useNavigate } from 'react-router-dom';
 
 import styled from 'styled-components';
 import theme from '../../styles/theme';
 import CreationModal from './CreationModal';
-
-import { FaPepperHot } from 'react-icons/fa';
-import { AiFillCheckCircle } from 'react-icons/ai';
-import { ImPointRight } from 'react-icons/im';
-
 import Card from '../../components/Card';
 import Nav from 'components/Nav';
 
+import { Editor } from '@tinymce/tinymce-react';
+import { Select, DatePicker, Checkbox, message } from 'antd';
+const { Option } = Select;
+import 'antd/dist/antd.css';
+import { ImPointRight } from 'react-icons/im';
+import { VscCircleOutline } from 'react-icons/vsc';
+
+import { BASE_URL, TINYMCE_API_KEY } from 'config';
+
 interface BasicInfoProps {
-  type?: string;
-  process?: string;
-  technologies?: string[];
-  frontNum?: string;
-  backNum?: string;
-  period?: string;
-  date?: string;
-  contact?: string;
-  contactDetail?: string;
+  category: string;
+  place: string;
+  stacks: string[];
+  frontNum: string;
+  backNum: string;
+  period: string;
+  startDate: string;
+  applyway: string;
+  applywayInfo: string;
+  title: '';
 }
 
 const Creation: FunctionComponent = () => {
+  const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [contactInput, setContactInput] = useState<string>('오픈 채팅방 링크');
-
-  // need to send to back
-  const [selectedAllCards, setSelectedAllCards] = useState<string[]>([]);
-  const [selectedMainCards, setSelectedMainCards] = useState<string[]>([]);
+  const [additionalCards, setAdditionalCards] = useState<string[]>([]);
+  const [primaryCards, setPrimaryCards] = useState<string[]>([]);
   const [basicInfo, setBasicInfo] = useState<BasicInfoProps>({
-    type: '',
-    process: '',
-    technologies: [],
+    category: '',
+    place: '',
+    stacks: [],
     frontNum: '',
     backNum: '',
     period: '',
-    date: '',
-    contact: '',
-    contactDetail: '',
-  });
-  const [control, setControl] = useState('');
-  const [detailInfo, setDetailInfo] = useState({
+    startDate: '',
+    applyway: '',
+    applywayInfo: '',
     title: '',
-    description: '',
+  });
+  const [flavor, setFlavor] = useState('');
+  const [detailInfo, setDetailInfo] = useState('');
+
+  const {
+    category,
+    place,
+    stacks,
+    frontNum,
+    backNum,
+    period,
+    startDate,
+    applyway,
+    applywayInfo,
+    title,
+  } = basicInfo;
+
+  const PrimaryCards = primaryCards.map((name) => {
+    return {
+      name,
+      ingredient: Card_List.find((card) => card.name === name)?.ingredient,
+    };
   });
 
-  const allCards = selectedAllCards.map((name) => {
+  const AdditionalCards = additionalCards.map((name) => {
     return {
       name,
       ingredient: Card_List.find((card) => card.name === name)?.ingredient,
@@ -60,6 +82,59 @@ const Creation: FunctionComponent = () => {
 
   const openModal = () => {
     setIsModalOpen(true);
+  };
+
+  const submitToBack = async (formData: FormData) => {
+    try {
+      const res = await axios({
+        method: 'post',
+        url: `http://${BASE_URL}/posts/create`,
+        headers: {
+          'Content-Type': `multipart/form-data`,
+        },
+        data: formData,
+      });
+
+      if (res.status === 200) {
+        message.success('프로젝트가 성공적으로 생성되었습니다! 🎉');
+        navigate(`/project/아이디`); // 프로젝트 생성 => 상세페이지 해당 글로 바로 이동 (이 때 id 값 필요. how? 생성함과 동시에 바로 id 값 받을 수 있나?)
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const storeFormData = () => {
+    if (Object.values(detailInfo).some((item) => item.length === 0)) {
+      message.warning('모든 값을 다 입력해주세요.');
+      return;
+    } else {
+      const formData = new FormData();
+      formData.append('category', category);
+      formData.append('title', title);
+      formData.append('number_of_front', frontNum);
+      formData.append('number_of_back', backNum);
+      formData.append('period', period);
+      formData.append('start_date', startDate);
+
+      submitToBack(formData);
+    }
+  };
+
+  const handleBasicInfo = (value: string | unknown, id: string) => {
+    setBasicInfo({ ...basicInfo, [id]: value });
+  };
+
+  const handleFlavor = (e: React.MouseEvent<HTMLElement>) => {
+    if ((e.target as HTMLInputElement).nodeName !== 'INPUT') return;
+
+    const checkbox = e.target as HTMLInputElement;
+
+    checkbox.checked && setFlavor(checkbox.name);
+  };
+
+  const handleEditorChange = (content: string) => {
+    setDetailInfo(content);
   };
 
   const changeContactInput = (value: string | unknown) => {
@@ -79,24 +154,6 @@ const Creation: FunctionComponent = () => {
     }
   };
 
-  const handleBasicInfo = (value: string | unknown, id: string) => {
-    setBasicInfo({ ...basicInfo, [id]: value });
-  };
-
-  const handleDetailInfo = (e: React.ChangeEvent<HTMLElement>) => {
-    const target = e.target as HTMLInputElement;
-
-    setDetailInfo({ ...detailInfo, [target.name]: target.value });
-  };
-
-  const handleControl = (e: React.MouseEvent<HTMLElement>) => {
-    if ((e.target as HTMLInputElement).nodeName !== 'INPUT') return;
-
-    const checkbox = e.target as HTMLInputElement;
-
-    checkbox.checked && setControl(checkbox.name);
-  };
-
   return (
     <>
       <Nav />
@@ -104,10 +161,10 @@ const Creation: FunctionComponent = () => {
         {isModalOpen && (
           <CreationModal
             setIsModalOpen={setIsModalOpen}
-            selectedAllCards={selectedAllCards}
-            setSelectedAllCards={setSelectedAllCards}
-            selectedMainCards={selectedMainCards}
-            setSelectedMainCards={setSelectedMainCards}
+            additionalCards={additionalCards}
+            setAdditionalCards={setAdditionalCards}
+            primaryCards={primaryCards}
+            setPrimaryCards={setPrimaryCards}
           />
         )}
         <BasicInfo>
@@ -119,31 +176,27 @@ const Creation: FunctionComponent = () => {
             <SelectList>
               <ListItem>
                 <Label>
-                  <AiFillCheckCircle />
+                  <StyledCircle />
                   &nbsp; 프로젝트 타입
                 </Label>
                 <StyledSelect
                   defaultValue="스터디/프로젝트"
                   bordered={false}
-                  onChange={(value) => handleBasicInfo(value, 'type')}
+                  onChange={(value) => handleBasicInfo(value, 'category')}
                 >
-                  <Option value="study" name="study">
-                    스터디
-                  </Option>
-                  <Option value="project" name="study">
-                    프로젝트
-                  </Option>
+                  <Option value="study">스터디</Option>
+                  <Option value="project">프로젝트</Option>
                 </StyledSelect>
               </ListItem>
               <ListItem>
                 <Label>
-                  <AiFillCheckCircle />
+                  <StyledCircle />
                   &nbsp; 진행 방식
                 </Label>
                 <StyledSelect
                   defaultValue="온라인/오프라인"
                   bordered={false}
-                  onChange={(value) => handleBasicInfo(value, 'process')}
+                  onChange={(value) => handleBasicInfo(value, 'place')}
                 >
                   <Option value="online">온라인</Option>
                   <Option value="offline">오프라인</Option>
@@ -151,7 +204,7 @@ const Creation: FunctionComponent = () => {
               </ListItem>
               <ListItem>
                 <Label>
-                  <AiFillCheckCircle />
+                  <StyledCircle />
                   &nbsp; 기술 스택
                 </Label>
                 <StyledSelect
@@ -160,8 +213,9 @@ const Creation: FunctionComponent = () => {
                   bordered={false}
                   mode="multiple"
                   optionLabelProp="label"
+                  maxTagCount="responsive"
                   showArrow
-                  onChange={(value) => handleBasicInfo(value, 'technologies')}
+                  onChange={(value) => handleBasicInfo(value, 'stacks')}
                 >
                   <Option value="javascript">Javascript</Option>
                   <Option value="typescript">Typescript</Option>
@@ -196,7 +250,7 @@ const Creation: FunctionComponent = () => {
               </ListItem>
               <ListItem>
                 <Label>
-                  <AiFillCheckCircle />
+                  <StyledCircle />
                   &nbsp; 프론트 엔드 모집 인원
                 </Label>
                 <StyledSelect
@@ -204,17 +258,17 @@ const Creation: FunctionComponent = () => {
                   bordered={false}
                   onChange={(value) => handleBasicInfo(value, 'frontNum')}
                 >
-                  <Option value="none">인원 미정</Option>
-                  <Option value="1">1명</Option>
-                  <Option value="2">2명</Option>
-                  <Option value="3">3명</Option>
-                  <Option value="4">4명</Option>
-                  <Option value="5">5명 이상</Option>
+                  <Option value="인원 미정">인원 미정</Option>
+                  <Option value="1명">1명</Option>
+                  <Option value="2명">2명</Option>
+                  <Option value="3명">3명</Option>
+                  <Option value="4명">4명</Option>
+                  <Option value="5명 이상">5명 이상</Option>
                 </StyledSelect>
               </ListItem>
               <ListItem>
                 <Label>
-                  <AiFillCheckCircle />
+                  <StyledCircle />
                   &nbsp; 백엔드 모집 인원
                 </Label>
                 <StyledSelect
@@ -222,17 +276,17 @@ const Creation: FunctionComponent = () => {
                   bordered={false}
                   onChange={(value) => handleBasicInfo(value, 'backNum')}
                 >
-                  <Option value="none">인원 미정</Option>
-                  <Option value="1">1명</Option>
-                  <Option value="2">2명</Option>
-                  <Option value="3">3명</Option>
-                  <Option value="4">4명</Option>
-                  <Option value="5">5명 이상</Option>
+                  <Option value="인원 미정">인원 미정</Option>
+                  <Option value="1명">1명</Option>
+                  <Option value="2명">2명</Option>
+                  <Option value="3명">3명</Option>
+                  <Option value="4명">4명</Option>
+                  <Option value="5명 이상">5명 이상</Option>
                 </StyledSelect>
               </ListItem>
               <ListItem>
                 <Label>
-                  <AiFillCheckCircle />
+                  <StyledCircle />
                   &nbsp; 진행 기간
                 </Label>
                 <StyledSelect
@@ -240,106 +294,137 @@ const Creation: FunctionComponent = () => {
                   bordered={false}
                   onChange={(value) => handleBasicInfo(value, 'period')}
                 >
-                  <Option value="undefined">기간 미정</Option>
-                  <Option value="2weeks">2주 이내</Option>
-                  <Option value="1month">1개월</Option>
-                  <Option value="2months">2개월</Option>
-                  <Option value="3months">3개월</Option>
-                  <Option value="4months">4개월</Option>
-                  <Option value="5months">5개월</Option>
-                  <Option value="6months">6개월 이상</Option>
+                  <Option value="기간 미정">기간 미정</Option>
+                  <Option value="2주 이내">2주 이내</Option>
+                  <Option value="1개월">1개월</Option>
+                  <Option value="2개월">2개월</Option>
+                  <Option value="3개월">3개월</Option>
+                  <Option value="4개월">4개월</Option>
+                  <Option value="5개월">5개월</Option>
+                  <Option value="6개월 이상">6개월 이상</Option>
                 </StyledSelect>
               </ListItem>
               <ListItem>
                 <Label>
-                  <AiFillCheckCircle />
+                  <StyledCircle />
                   &nbsp; 시작 예정일
                 </Label>
                 <StyledDatePicker
                   placeholder="날짜를 골라주세요."
                   onChange={(value) =>
-                    handleBasicInfo(JSON.stringify(value), 'date')
+                    handleBasicInfo(
+                      JSON.stringify(value).split('"')[1],
+                      'startDate',
+                    )
                   }
                 />
               </ListItem>
               <ListItem>
                 <Label>
-                  <AiFillCheckCircle />
+                  <StyledCircle />
                   &nbsp; 연락 방법
                 </Label>
                 <StyledSelect
                   defaultValue="카카오톡 오픈 채팅"
                   bordered={false}
                   onSelect={changeContactInput}
-                  onChange={(value) => handleBasicInfo(value, 'contact')}
+                  onChange={(value) => handleBasicInfo(value, 'applyway')}
                 >
-                  <Option value="open-chatting">카카오톡 오픈채팅</Option>
-                  <Option value="email">이메일</Option>
-                  <Option value="text">문자메세지</Option>
+                  <Option value="카카오톡 오픈채팅">카카오톡 오픈채팅</Option>
+                  <Option value="이메일">이메일</Option>
+                  <Option value="문자메세지">문자메세지</Option>
                 </StyledSelect>
                 <ContactInput
                   placeholder={contactInput}
                   onChange={(e) =>
-                    handleBasicInfo(e.target.value, 'contactDetail')
+                    handleBasicInfo(e.target.value, 'applywayInfo')
                   }
                 />
               </ListItem>
               <ListItem>
                 <Label>
-                  <AiFillCheckCircle />
+                  <StyledCircle />
                   &nbsp; 우리 팀 성향
                 </Label>
                 <TagBox>
                   <Button onClick={openModal}>
                     <ImPointRight /> &nbsp;
-                    {selectedMainCards.length === 0
+                    {primaryCards.length === 0
                       ? '팀 성향 고르기 Click!'
                       : '다시 고르기 Click!'}
                   </Button>
                   <CardList>
-                    {allCards?.map(({ ingredient, name }, index) => (
-                      <Card
-                        id={name}
-                        key={name + index}
-                        ingredient={ingredient}
-                        name={name}
-                        size={'small'}
-                      />
-                    ))}
+                    <CardBox>
+                      {PrimaryCards.length > 0 && (
+                        <CardBoxLabel>메인 재료</CardBoxLabel>
+                      )}
+
+                      {PrimaryCards?.map(({ ingredient, name }, index) => (
+                        <Card
+                          id={name}
+                          key={name + index}
+                          ingredient={ingredient}
+                          name={name}
+                          size={'small'}
+                        />
+                      ))}
+                    </CardBox>
+                    <CardBox>
+                      {AdditionalCards.length > 0 && (
+                        <CardBoxLabel>추가 재료</CardBoxLabel>
+                      )}
+                      {AdditionalCards?.map(({ ingredient, name }, index) => (
+                        <Card
+                          id={name}
+                          key={name + index}
+                          ingredient={ingredient}
+                          name={name}
+                          size={'small'}
+                        />
+                      ))}
+                    </CardBox>
                   </CardList>
                 </TagBox>
               </ListItem>
             </SelectList>
             <ControlBox>
               <ControlTitle>프로젝트 맵기 조절</ControlTitle>
-              <ControlList onClick={handleControl}>
+              <ControlList onClick={handleFlavor}>
                 <ControlListItem>
-                  <StyledCheckbox name="매운맛"></StyledCheckbox>
+                  <StyledCheckbox
+                    name="spicy"
+                    checked={flavor === 'spicy'}
+                  ></StyledCheckbox>
                   <Description>
                     <div>
                       매운 맛
-                      <Chili />
-                      <Chili />
-                      <Chili />
+                      <Chili src={'https://i.ibb.co/x3JHb8W/03-hot.png'} />
                     </div>
                     <span>주 00 시간 이상</span>
                   </Description>
                 </ControlListItem>
                 <ControlListItem>
-                  <StyledCheckbox name="중간맛"></StyledCheckbox>
+                  <StyledCheckbox
+                    name="medium"
+                    checked={flavor === 'medium'}
+                  ></StyledCheckbox>
                   <Description>
                     <div>
-                      중간 맛 <Chili />
-                      <Chili />
+                      중간 맛
+                      <Chili src={'https://i.ibb.co/7pjqfWM/02-medium.png'} />
                     </div>
                     <span>주 00 시간 ~ 00시간</span>
                   </Description>
                 </ControlListItem>
                 <ControlListItem>
-                  <StyledCheckbox name="순한맛"></StyledCheckbox>
+                  <StyledCheckbox
+                    name="mild"
+                    checked={flavor === 'mild'}
+                  ></StyledCheckbox>
                   <Description>
                     <div>
-                      순한 맛 <GreenChili />
+                      순한 맛
+                      <Chili src={'https://i.ibb.co/F8Q9Nc1/01-mild.png'} />
                     </div>
                     <span>주 00 시간 이하</span>
                   </Description>
@@ -348,6 +433,9 @@ const Creation: FunctionComponent = () => {
             </ControlBox>
           </Main>
         </BasicInfo>
+        {primaryCards.length === 0 && additionalCards.length === 0 && (
+          <MiddleLine></MiddleLine>
+        )}
 
         <DetailInfo>
           <Title>
@@ -358,18 +446,36 @@ const Creation: FunctionComponent = () => {
           <TitleInput
             type="text"
             name="title"
-            onChange={handleDetailInfo}
-            value={detailInfo.title}
+            onChange={(e) => handleBasicInfo(e.target.value, 'title')}
+            value={basicInfo.title}
           ></TitleInput>
           <Label>자세한 소개</Label>
-          <Textarea
-            name="description"
-            onChange={handleDetailInfo}
-            value={detailInfo.description}
-          ></Textarea>
+          <EditorBox>
+            <Editor
+              apiKey={TINYMCE_API_KEY}
+              init={{
+                referrer_policy: 'origin',
+                export_cors_hosts: [`${BASE_URL}`],
+                icons: 'thin',
+                placeholder: '프로젝트에 대해 소개해주세요.',
+                height: 700,
+                menubar: true,
+                plugins: ['image'],
+                paste_data_images: true,
+                automatic_uploads: true,
+                images_upload_url: `${BASE_URL}/posts/create`, // 서버주소 이어야 하지 않을까? => 만약 안되면 image 아이콘 없애고 drag 만 되는 걸로 바꾸기
+                toolbar:
+                  'undo redo | image | styles | styleselect  | fontsizeselect  | bold italic | alignleft aligncenter alignright alignjustify | outdent indent ',
+                resize: false,
+              }}
+              onEditorChange={handleEditorChange}
+            />
+          </EditorBox>
           <ButtonBox>
             <StyledButton mode="cancle">취소</StyledButton>
-            <StyledButton mode="submit">등록</StyledButton>
+            <StyledButton mode="submit" onClick={storeFormData}>
+              등록
+            </StyledButton>
           </ButtonBox>
         </DetailInfo>
       </Wrapper>
@@ -398,7 +504,7 @@ const Wrapper = styled.div`
 
 //BasicInfo
 const BasicInfo = styled.div`
-  margin: 140px 0;
+  margin: 140px 0 160px 0;
 `;
 
 const Title = styled.h1`
@@ -423,6 +529,12 @@ const Line = styled.div`
   height: 1px;
   margin: 20px 0;
   background-color: #dfe1e6;
+`;
+
+const MiddleLine = styled.div`
+  width: 100%;
+  height: 1px;
+  margin-top: -150px;
 `;
 
 const Main = styled.main`
@@ -456,6 +568,10 @@ const StyledSelect = styled(Select)`
   cursor: pointer;
 `;
 
+const StyledCircle = styled(VscCircleOutline)`
+  font-size: ${theme.fontSmall};
+`;
+
 const ContactInput = styled.input`
   display: block;
   font-family: ‘Black Han Sans’, sans-serif;
@@ -481,6 +597,23 @@ const TagBox = styled.div`
 const CardList = styled.div`
   transform: translateX(10px);
   position: absolute;
+  width: 100%;
+`;
+
+const CardBox = styled.div`
+  position: relative;
+  margin: 12px 0;
+  border: transparant 1px solid;
+  border-radius: 10px;
+  background: #f4f5f7;
+`;
+
+const CardBoxLabel = styled.span`
+  position: absolute;
+  left: 20px;
+  top: -5px;
+  font-size: ${theme.fontMicro};
+  color: ${theme.mainViolet};
 `;
 
 const StyledDatePicker = styled(DatePicker)`
@@ -539,21 +672,22 @@ const StyledCheckbox = styled(Checkbox)`
 `;
 
 const Description = styled.div`
+  position: relative;
   display: flex;
   flex-direction: column;
   span {
-    margin-top: 10px;
+    margin-top: 15px;
     font-size: 14px;
   }
 `;
 
-const Chili = styled(FaPepperHot)`
-  margin: 0 1px;
-  color: #f5390f;
-`;
-
-const GreenChili = styled(FaPepperHot)`
-  color: #7fd64f;
+const Chili = styled.img`
+  position: absolute;
+  top: -10px;
+  left: 45px;
+  margin: 0 2px;
+  width: 35px;
+  height: 35px;
 `;
 
 // DetailInfo
@@ -574,22 +708,20 @@ const TitleInput = styled.input`
   border-radius: 3px;
 `;
 
-const Textarea = styled.textarea`
+const EditorBox = styled.div`
   font-family: ‘Black Han Sans’, sans-serif;
   margin: 20px 0 100px 0;
-  padding: 10px;
   width: 100%;
-  height: 500px;
   font-size: ${theme.fontSemiMedium};
-  border: 1px solid #dfe1e6;
   border-radius: 3px;
   resize: none;
 `;
 
 const ButtonBox = styled.div`
+  font-family: 'Jua', sans-serif;
   position: absolute;
   right: 0;
-  bottom: 50px;
+  bottom: -60px;
 `;
 
 const StyledButton = styled.button<{ mode: string }>`
