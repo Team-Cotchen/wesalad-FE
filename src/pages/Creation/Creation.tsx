@@ -1,127 +1,132 @@
+import { Select, DatePicker, Checkbox, message, Form, Button } from 'antd';
 import axios from 'axios';
-import React, { useState, FunctionComponent } from 'react';
-
-import 'antd/dist/antd.min.css';
+import moment from 'moment';
+import React, { useState, FunctionComponent, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-
-import styled from 'styled-components';
-import theme from '../../styles/theme';
-import CreationModal from './CreationModal';
-import Card from '../../components/Card';
-import Nav from 'components/Nav';
-
-import { Editor } from '@tinymce/tinymce-react';
-import { Select, DatePicker, Checkbox, message } from 'antd';
-const { Option } = Select;
 import { ImPointRight } from 'react-icons/im';
 import { VscCircleOutline } from 'react-icons/vsc';
+import { Editor } from '@tinymce/tinymce-react';
+import styled from 'styled-components';
+
+import CreationModal from 'pages/Creation/CreationModal';
+import Card from 'components/Card';
+import Nav from 'components/Nav';
+
+import theme from 'styles/theme';
+import { devices } from 'styles/devices';
 
 import { BASE_URL, TINYMCE_API_KEY } from 'config';
 
-interface BasicInfoProps {
-  category: string;
-  place: string;
-  stacks: string[];
-  frontNum: string;
-  backNum: string;
-  period: string;
-  startDate: string;
-  applyway: string;
-  applywayInfo: string;
-  title: '';
-}
+import type { OptionModel, FormModel } from 'pages/Creation/Creation.model';
+
+const { Option } = Select;
+const { Item } = Form;
 
 const Creation: FunctionComponent = () => {
+  const [form] = Form.useForm();
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [contactInput, setContactInput] = useState<string>('오픈 채팅방 링크');
-  const [additionalCards, setAdditionalCards] = useState<string[]>([]);
-  const [primaryCards, setPrimaryCards] = useState<string[]>([]);
-  const [basicInfo, setBasicInfo] = useState<BasicInfoProps>({
-    category: '',
-    place: '',
-    stacks: [],
-    frontNum: '',
-    backNum: '',
-    period: '',
-    startDate: '',
-    applyway: '',
-    applywayInfo: '',
-    title: '',
+  const [options, setOptions] = useState<OptionModel>({
+    CATEGORY: [],
+    PLACE: [],
+    NUM_OF_DEVELOPER: [],
+    PERIOD: [],
+    APPLY_WAY: [],
+    FLAVOR: [],
+    STACKS: [],
+    CARD_LIST: [],
   });
-  const [flavor, setFlavor] = useState('');
-  const [detailInfo, setDetailInfo] = useState('');
 
   const {
-    category,
-    place,
-    stacks,
-    frontNum,
-    backNum,
-    period,
-    startDate,
-    applyway,
-    applywayInfo,
-    title,
-  } = basicInfo;
+    CATEGORY,
+    PLACE,
+    NUM_OF_DEVELOPER,
+    PERIOD,
+    APPLY_WAY,
+    FLAVOR,
+    STACKS,
+    CARD_LIST,
+  } = options;
 
-  const PrimaryCards = primaryCards.map((name) => {
+  const [additionalCards, setAdditionalCards] = useState<string[]>([]);
+  const [primaryCards, setPrimaryCards] = useState<string[]>([]);
+  const [applyWay, setApplyWay] = useState<unknown>();
+  const [flavor, setFlavor] = useState('');
+  const [description, setDescription] = useState('');
+
+  const PRYMARY_CARDS = primaryCards.map((name) => {
     return {
       name,
-      ingredient: Card_List.find((card) => card.name === name)?.ingredient,
+      image_url: CARD_LIST.find((card) => card.name === name)?.image_url,
     };
   });
 
-  const AdditionalCards = additionalCards.map((name) => {
+  const ADDITIONAL_CARDS = additionalCards.map((name) => {
     return {
       name,
-      ingredient: Card_List.find((card) => card.name === name)?.ingredient,
+      image_url: CARD_LIST.find((card) => card.name === name)?.image_url,
     };
   });
+
+  const ALL_CARDS = useMemo(
+    () =>
+      [...primaryCards, ...additionalCards].map((item) => {
+        return { description: item, is_primary: primaryCards.includes(item) };
+      }),
+    [primaryCards, additionalCards],
+  );
+
+  const getOptions = async () => {
+    const { data } = await axios.get('/data/constantOptions.json');
+
+    setOptions(data);
+  };
+
+  useEffect(() => {
+    getOptions();
+    initialLizeForm();
+  }, []);
 
   const openModal = () => {
     setIsModalOpen(true);
   };
 
-  const submitToBack = async (formData: FormData) => {
+  const submitForm = async (values: FormModel) => {
     try {
+      const formData = new FormData();
+
+      const formattedValues = {
+        ...values,
+        start_date: values.start_date.format('YYYY-MM-DD'),
+        answers: JSON.stringify(ALL_CARDS),
+        stacks: JSON.stringify(values.stacks),
+        description,
+      };
+
+      Object.entries(formattedValues).forEach(([key, value]) =>
+        formData.append(key, value),
+      );
+
       const res = await axios({
         method: 'post',
-        url: `http://${BASE_URL}/posts/create`,
+        url: `${BASE_URL}/posts/create`,
         headers: {
           'Content-Type': `multipart/form-data`,
         },
         data: formData,
       });
 
-      if (res.status === 200) {
+      if (res.status === 201) {
         message.success('프로젝트가 성공적으로 생성되었습니다! 🎉');
-        navigate(`/project/아이디`); // 프로젝트 생성 => 상세페이지 해당 글로 바로 이동 (이 때 id 값 필요. how? 생성함과 동시에 바로 id 값 받을 수 있나?)
+
+        const id = (res.data as { id: number }).id;
+
+        navigate(`/project/${id}`);
       }
     } catch (err) {
       console.log(err);
+      message.error('프로젝트가 생성되지 않았습니다.');
     }
-  };
-
-  const storeFormData = () => {
-    if (Object.values(detailInfo).some((item) => item.length === 0)) {
-      message.warning('모든 값을 다 입력해주세요.');
-      return;
-    } else {
-      const formData = new FormData();
-      formData.append('category', category);
-      formData.append('title', title);
-      formData.append('number_of_front', frontNum);
-      formData.append('number_of_back', backNum);
-      formData.append('period', period);
-      formData.append('start_date', startDate);
-
-      submitToBack(formData);
-    }
-  };
-
-  const handleBasicInfo = (value: string | unknown, id: string) => {
-    setBasicInfo({ ...basicInfo, [id]: value });
   };
 
   const handleFlavor = (e: React.MouseEvent<HTMLElement>) => {
@@ -133,24 +138,23 @@ const Creation: FunctionComponent = () => {
   };
 
   const handleEditorChange = (content: string) => {
-    setDetailInfo(content);
+    setDescription(content);
   };
 
-  const changeContactInput = (value: string | unknown) => {
-    switch (value) {
-      case 'open-chatting': {
-        setContactInput('오픈 채팅방 링크');
-        break;
-      }
-      case 'email': {
-        setContactInput('이메일 주소');
-        break;
-      }
-      case 'text': {
-        setContactInput('핸드폰 번호');
-        break;
-      }
-    }
+  const initialLizeForm = () => {
+    form.setFieldsValue({
+      category: '스터디/프로젝트',
+      stacks: ['javascript'],
+      applyway: '카카오톡 오픈 채팅',
+      applyway_info: '',
+      place: '온라인/오프라인',
+      title: '',
+      number_of_front: '인원 미정 ~ 5명 이상',
+      number_of_back: '인원 미정 ~ 5명 이상',
+      period: '기간 미정 ~ 6개월 이상',
+      description: '',
+      start_date: moment(new Date(), 'YYYY-MM-DD'),
+    });
   };
 
   return (
@@ -164,319 +168,296 @@ const Creation: FunctionComponent = () => {
             setAdditionalCards={setAdditionalCards}
             primaryCards={primaryCards}
             setPrimaryCards={setPrimaryCards}
+            CARD_LIST={CARD_LIST}
           />
         )}
-        <BasicInfo>
-          <Title>
-            <Num>1</Num>원하는 프로젝트 레시피를 알려주세요.
-          </Title>
-          <Line></Line>
-          <Main>
-            <SelectList>
-              <ListItem>
-                <Label>
-                  <StyledCircle />
-                  &nbsp; 프로젝트 타입
-                </Label>
-                <StyledSelect
-                  defaultValue="스터디/프로젝트"
-                  bordered={false}
-                  onChange={(value) => handleBasicInfo(value, 'category')}
-                >
-                  <Option value="study">스터디</Option>
-                  <Option value="project">프로젝트</Option>
-                </StyledSelect>
-              </ListItem>
-              <ListItem>
-                <Label>
-                  <StyledCircle />
-                  &nbsp; 진행 방식
-                </Label>
-                <StyledSelect
-                  defaultValue="온라인/오프라인"
-                  bordered={false}
-                  onChange={(value) => handleBasicInfo(value, 'place')}
-                >
-                  <Option value="online">온라인</Option>
-                  <Option value="offline">오프라인</Option>
-                </StyledSelect>
-              </ListItem>
-              <ListItem>
-                <Label>
-                  <StyledCircle />
-                  &nbsp; 기술 스택
-                </Label>
-                <StyledSelect
-                  placeholder="사용할 기술 스택을 골라주세요."
-                  defaultValue={['javascript']}
-                  bordered={false}
-                  mode="multiple"
-                  optionLabelProp="label"
-                  maxTagCount="responsive"
-                  showArrow
-                  onChange={(value) => handleBasicInfo(value, 'stacks')}
-                >
-                  <Option value="javascript">Javascript</Option>
-                  <Option value="typescript">Typescript</Option>
-                  <Option value="react">React</Option>
-                  <Option value="vue">Vue</Option>
-                  <Option value="node.js">Node.js</Option>
-                  <Option value="spring">Spring</Option>
-                  <Option value="java">Java</Option>
-                  <Option value="next.js">Next.js</Option>
-                  <Option value="express">Express</Option>
-                  <Option value="go">Go</Option>
-                  <Option value="c">C</Option>
-                  <Option value="python">Python</Option>
-                  <Option value="django">Django</Option>
-                  <Option value="swift">Swift</Option>
-                  <Option value="kotlin">Kotlin</Option>
-                  <Option value="mysql">MySQL</Option>
-                  <Option value="mongodb">MongoDB</Option>
-                  <Option value="php">php</Option>
-                  <Option value="graphql">GraphQL</Option>
-                  <Option value="firebase">Firebase</Option>
-                  <Option value="reactnative">ReactNative</Option>
-                  <Option value="unity">Unity</Option>
-                  <Option value="flutter">Flutter</Option>
-                  <Option value="aws">AWS</Option>
-                  <Option value="kubernetes">Kubernetes</Option>
-                  <Option value="docker">Docker</Option>
-                  <Option value="git">Git</Option>
-                  <Option value="figma">Figma</Option>
-                  <Option value="zeplin">Zeplin</Option>
-                </StyledSelect>
-              </ListItem>
-              <ListItem>
-                <Label>
-                  <StyledCircle />
-                  &nbsp; 프론트 엔드 모집 인원
-                </Label>
-                <StyledSelect
-                  defaultValue="인원 미정 ~ 5명 이상"
-                  bordered={false}
-                  onChange={(value) => handleBasicInfo(value, 'frontNum')}
-                >
-                  <Option value="인원 미정">인원 미정</Option>
-                  <Option value="1명">1명</Option>
-                  <Option value="2명">2명</Option>
-                  <Option value="3명">3명</Option>
-                  <Option value="4명">4명</Option>
-                  <Option value="5명 이상">5명 이상</Option>
-                </StyledSelect>
-              </ListItem>
-              <ListItem>
-                <Label>
-                  <StyledCircle />
-                  &nbsp; 백엔드 모집 인원
-                </Label>
-                <StyledSelect
-                  defaultValue="인원 미정 ~ 5명 이상"
-                  bordered={false}
-                  onChange={(value) => handleBasicInfo(value, 'backNum')}
-                >
-                  <Option value="인원 미정">인원 미정</Option>
-                  <Option value="1명">1명</Option>
-                  <Option value="2명">2명</Option>
-                  <Option value="3명">3명</Option>
-                  <Option value="4명">4명</Option>
-                  <Option value="5명 이상">5명 이상</Option>
-                </StyledSelect>
-              </ListItem>
-              <ListItem>
-                <Label>
-                  <StyledCircle />
-                  &nbsp; 진행 기간
-                </Label>
-                <StyledSelect
-                  defaultValue="기간 미정 ~ 6개월 이상"
-                  bordered={false}
-                  onChange={(value) => handleBasicInfo(value, 'period')}
-                >
-                  <Option value="기간 미정">기간 미정</Option>
-                  <Option value="2주 이내">2주 이내</Option>
-                  <Option value="1개월">1개월</Option>
-                  <Option value="2개월">2개월</Option>
-                  <Option value="3개월">3개월</Option>
-                  <Option value="4개월">4개월</Option>
-                  <Option value="5개월">5개월</Option>
-                  <Option value="6개월 이상">6개월 이상</Option>
-                </StyledSelect>
-              </ListItem>
-              <ListItem>
-                <Label>
-                  <StyledCircle />
-                  &nbsp; 시작 예정일
-                </Label>
-                <StyledDatePicker
-                  placeholder="날짜를 골라주세요."
-                  onChange={(value) =>
-                    handleBasicInfo(
-                      JSON.stringify(value).split('"')[1],
-                      'startDate',
-                    )
-                  }
-                />
-              </ListItem>
-              <ListItem>
-                <Label>
-                  <StyledCircle />
-                  &nbsp; 연락 방법
-                </Label>
-                <StyledSelect
-                  defaultValue="카카오톡 오픈 채팅"
-                  bordered={false}
-                  onSelect={changeContactInput}
-                  onChange={(value) => handleBasicInfo(value, 'applyway')}
-                >
-                  <Option value="카카오톡 오픈채팅">카카오톡 오픈채팅</Option>
-                  <Option value="이메일">이메일</Option>
-                  <Option value="문자메세지">문자메세지</Option>
-                </StyledSelect>
-                <ContactInput
-                  placeholder={contactInput}
-                  onChange={(e) =>
-                    handleBasicInfo(e.target.value, 'applywayInfo')
-                  }
-                />
-              </ListItem>
-              <ListItem>
-                <Label>
-                  <StyledCircle />
-                  &nbsp; 우리 팀 성향
-                </Label>
-                <TagBox>
-                  <Button onClick={openModal}>
-                    <ImPointRight /> &nbsp;
-                    {primaryCards.length === 0
-                      ? '팀 성향 고르기 Click!'
-                      : '다시 고르기 Click!'}
-                  </Button>
-                  <CardList>
-                    <CardBox>
-                      {PrimaryCards.length > 0 && (
-                        <CardBoxLabel>메인 재료</CardBoxLabel>
-                      )}
 
-                      {PrimaryCards?.map(({ ingredient, name }, index) => (
-                        <Card
-                          id={name}
-                          key={name + index}
-                          ingredient={ingredient}
-                          name={name}
-                          size={'small'}
-                        />
+        {CATEGORY.length > 0 && (
+          <Form
+            form={form}
+            onFinish={submitForm}
+            style={{ position: 'relative' }}
+          >
+            <BasicInfo>
+              <Title>
+                <Num>1</Num>원하는 프로젝트 레시피를 알려주세요.
+              </Title>
+              <Line></Line>
+              <Main>
+                <SelectList>
+                  <ListItem
+                    name="category"
+                    label={
+                      <StyledLabel>
+                        <StyledCircle />
+                        &nbsp; 프로젝트 타입
+                      </StyledLabel>
+                    }
+                  >
+                    <StyledSelect bordered={false}>
+                      {CATEGORY.map((category) => (
+                        <Option key={category} value={category || 'category'}>
+                          {category}
+                        </Option>
                       ))}
-                    </CardBox>
-                    <CardBox>
-                      {AdditionalCards.length > 0 && (
-                        <CardBoxLabel>추가 재료</CardBoxLabel>
-                      )}
-                      {AdditionalCards?.map(({ ingredient, name }, index) => (
-                        <Card
-                          id={name}
-                          key={name + index}
-                          ingredient={ingredient}
-                          name={name}
-                          size={'small'}
-                        />
+                    </StyledSelect>
+                  </ListItem>
+                  <ListItem
+                    name="place"
+                    label={
+                      <StyledLabel>
+                        <StyledCircle />
+                        &nbsp; 진행방식
+                      </StyledLabel>
+                    }
+                  >
+                    <StyledSelect bordered={false}>
+                      {PLACE.map((place) => (
+                        <Option key={place} value={place || 'place'}>
+                          {place}
+                        </Option>
                       ))}
-                    </CardBox>
-                  </CardList>
-                </TagBox>
-              </ListItem>
-            </SelectList>
-            <ControlBox>
-              <ControlTitle>프로젝트 맵기 조절</ControlTitle>
-              <ControlList onClick={handleFlavor}>
-                <ControlListItem>
-                  <StyledCheckbox
-                    name="spicy"
-                    checked={flavor === 'spicy'}
-                  ></StyledCheckbox>
-                  <Description>
-                    <div>
-                      매운 맛
-                      <Chili src={'https://i.ibb.co/x3JHb8W/03-hot.png'} />
-                    </div>
-                    <span>주 00 시간 이상</span>
-                  </Description>
-                </ControlListItem>
-                <ControlListItem>
-                  <StyledCheckbox
-                    name="medium"
-                    checked={flavor === 'medium'}
-                  ></StyledCheckbox>
-                  <Description>
-                    <div>
-                      중간 맛
-                      <Chili src={'https://i.ibb.co/7pjqfWM/02-medium.png'} />
-                    </div>
-                    <span>주 00 시간 ~ 00시간</span>
-                  </Description>
-                </ControlListItem>
-                <ControlListItem>
-                  <StyledCheckbox
-                    name="mild"
-                    checked={flavor === 'mild'}
-                  ></StyledCheckbox>
-                  <Description>
-                    <div>
-                      순한 맛
-                      <Chili src={'https://i.ibb.co/F8Q9Nc1/01-mild.png'} />
-                    </div>
-                    <span>주 00 시간 이하</span>
-                  </Description>
-                </ControlListItem>
-              </ControlList>
-            </ControlBox>
-          </Main>
-        </BasicInfo>
-        {primaryCards.length === 0 && additionalCards.length === 0 && (
-          <MiddleLine></MiddleLine>
+                    </StyledSelect>
+                  </ListItem>
+                  <ListItem
+                    name="stacks"
+                    label={
+                      <StyledLabel>
+                        <StyledCircle />
+                        &nbsp; 기술 스택
+                      </StyledLabel>
+                    }
+                  >
+                    <StyledSelect
+                      placeholder="사용할 기술 스택을 골라주세요."
+                      bordered={false}
+                      mode="multiple"
+                      optionLabelProp="label"
+                      maxTagCount="responsive"
+                      showArrow
+                    >
+                      {STACKS.map(({ value, title }) => (
+                        <Option key={value} value={value || 'stack'}>
+                          {title}
+                        </Option>
+                      ))}
+                    </StyledSelect>
+                  </ListItem>
+                  <ListItem
+                    name="number_of_front"
+                    label={
+                      <StyledLabel>
+                        <StyledCircle />
+                        &nbsp; 프론트엔드 모집 인원
+                      </StyledLabel>
+                    }
+                  >
+                    <StyledSelect bordered={false}>
+                      {NUM_OF_DEVELOPER.map((num) => (
+                        <Option key={num} value={num || '0'}>
+                          {num}
+                        </Option>
+                      ))}
+                    </StyledSelect>
+                  </ListItem>
+                  <ListItem
+                    name="number_of_back"
+                    label={
+                      <StyledLabel>
+                        <StyledCircle />
+                        &nbsp; 백엔드 모집 인원
+                      </StyledLabel>
+                    }
+                  >
+                    <StyledSelect bordered={false}>
+                      {NUM_OF_DEVELOPER.map((num) => (
+                        <Option key={num} value={num || '0'}>
+                          {num}
+                        </Option>
+                      ))}
+                    </StyledSelect>
+                  </ListItem>
+                  <ListItem
+                    name="period"
+                    label={
+                      <StyledLabel>
+                        <StyledCircle />
+                        &nbsp; 진행 기간
+                      </StyledLabel>
+                    }
+                  >
+                    <StyledSelect bordered={false}>
+                      {PERIOD.map((num) => (
+                        <Option key={num} value={num || '0'}>
+                          {num}
+                        </Option>
+                      ))}
+                    </StyledSelect>
+                  </ListItem>
+                  <ListItem
+                    name="start_date"
+                    label={
+                      <StyledLabel>
+                        <StyledCircle />
+                        &nbsp; 시작 예정일
+                      </StyledLabel>
+                    }
+                  >
+                    <StyledDatePicker placeholder="날짜를 골라주세요." />
+                  </ListItem>
+                  <ListItem
+                    name="applyway"
+                    label={
+                      <StyledLabel>
+                        <StyledCircle />
+                        &nbsp; 연락 방법
+                      </StyledLabel>
+                    }
+                  >
+                    <StyledSelect bordered={false} onChange={setApplyWay}>
+                      {APPLY_WAY.map(({ title }) => (
+                        <Option key={title} value={title || 'title'}>
+                          {title}
+                        </Option>
+                      ))}
+                    </StyledSelect>
+                  </ListItem>
+                  <ListItem
+                    name="applyway_info"
+                    label={
+                      <StyledLabel>
+                        <StyledCircle />
+                        &nbsp; 연락 주소
+                      </StyledLabel>
+                    }
+                  >
+                    <ContactInput
+                      placeholder={
+                        APPLY_WAY?.find(({ title }) => title === applyWay)
+                          ?.info || '카카오톡 오픈 채팅'
+                      }
+                    />
+                  </ListItem>
+
+                  <ListItem>
+                    <StyledLabel>
+                      <StyledCircle />
+                      &nbsp; 우리 팀 성향
+                    </StyledLabel>
+                    <TagBox>
+                      <PickButton onClick={openModal}>
+                        <ImPointRight /> &nbsp;
+                        {primaryCards.length === 0
+                          ? '팀 성향 고르기 Click!'
+                          : '다시 고르기 Click!'}
+                      </PickButton>
+                      <CardList>
+                        <CardBox>
+                          {PRYMARY_CARDS.length > 0 && (
+                            <CardBoxLabel>메인 재료</CardBoxLabel>
+                          )}
+
+                          {PRYMARY_CARDS?.map(({ image_url, name }, index) => (
+                            <Card
+                              id={name}
+                              key={name + index}
+                              image_url={image_url}
+                              name={name}
+                              size={'small'}
+                            />
+                          ))}
+                        </CardBox>
+                        <CardBox>
+                          {ADDITIONAL_CARDS.length > 0 && (
+                            <CardBoxLabel>추가 재료</CardBoxLabel>
+                          )}
+                          {ADDITIONAL_CARDS?.map(
+                            ({ image_url, name }, index) => (
+                              <Card
+                                id={name}
+                                key={name + index}
+                                image_url={image_url}
+                                name={name}
+                                size={'small'}
+                              />
+                            ),
+                          )}
+                        </CardBox>
+                      </CardList>
+                    </TagBox>
+                  </ListItem>
+                </SelectList>
+                <FlavorBox>
+                  <FlavorTitle>프로젝트 맵기 조절</FlavorTitle>
+                  <FlavorList onClick={handleFlavor}>
+                    {FLAVOR.map(({ title, description, image }) => {
+                      return (
+                        <FlavorListItem key={title}>
+                          <StyledCheckbox
+                            name={title}
+                            checked={flavor === title}
+                          ></StyledCheckbox>
+                          <Description>
+                            <div>
+                              {title}
+                              <Chili src={image} />
+                            </div>
+                            <span>{description}</span>
+                          </Description>
+                        </FlavorListItem>
+                      );
+                    })}
+                  </FlavorList>
+                </FlavorBox>
+              </Main>
+            </BasicInfo>
+
+            {primaryCards.length === 0 && additionalCards.length === 0 && (
+              <MiddleLine></MiddleLine>
+            )}
+            <DetailInfo>
+              <Title>
+                <Num>2</Num>프로젝트에 대해 소개해주세요.
+              </Title>
+              <Line></Line>
+              <Item name="title" label={<TitleLabel>제목</TitleLabel>}>
+                <TitleInput type="text" name="title"></TitleInput>
+              </Item>
+              <StyledLabel>자세한 소개</StyledLabel>
+              <EditorBox>
+                <Editor
+                  apiKey={TINYMCE_API_KEY}
+                  init={{
+                    referrer_policy: 'origin',
+                    export_cors_hosts: [`${BASE_URL}`],
+                    icons: 'thin',
+                    placeholder: '프로젝트에 대해 소개해주세요.',
+                    height: 700,
+                    menubar: true,
+                    plugins: ['image'],
+                    paste_data_images: true,
+                    automatic_uploads: true,
+                    images_upload_url: `${BASE_URL}/posts/create`, // 서버주소 이어야 하지 않을까? => 만약 안되면 image 아이콘 없애고 drag 만 되는 걸로 바꾸기
+                    toolbar:
+                      'undo redo | image | styles | styleselect  | fontsizeselect  | bold italic | alignleft aligncenter alignright alignjustify | outdent indent ',
+                    resize: false,
+                  }}
+                  onEditorChange={handleEditorChange}
+                />
+              </EditorBox>
+            </DetailInfo>
+            <ButtonBox>
+              <StyledButton style={{ background: '#99999' }}>취소</StyledButton>
+              <StyledButton
+                htmlType="submit"
+                type="ghost"
+                style={{ background: theme.mainGreen, color: '#fff' }}
+              >
+                등록
+              </StyledButton>
+            </ButtonBox>
+          </Form>
         )}
-
-        <DetailInfo>
-          <Title>
-            <Num>2</Num>프로젝트에 대해 소개해주세요.
-          </Title>
-          <Line></Line>
-          <Label>제목</Label>
-          <TitleInput
-            type="text"
-            name="title"
-            onChange={(e) => handleBasicInfo(e.target.value, 'title')}
-            value={basicInfo.title}
-          ></TitleInput>
-          <Label>자세한 소개</Label>
-          <EditorBox>
-            <Editor
-              apiKey={TINYMCE_API_KEY}
-              init={{
-                referrer_policy: 'origin',
-                export_cors_hosts: [`${BASE_URL}`],
-                icons: 'thin',
-                placeholder: '프로젝트에 대해 소개해주세요.',
-                height: 700,
-                menubar: true,
-                plugins: ['image'],
-                paste_data_images: true,
-                automatic_uploads: true,
-                images_upload_url: `${BASE_URL}/posts/create`, // 서버주소 이어야 하지 않을까? => 만약 안되면 image 아이콘 없애고 drag 만 되는 걸로 바꾸기
-                toolbar:
-                  'undo redo | image | styles | styleselect  | fontsizeselect  | bold italic | alignleft aligncenter alignright alignjustify | outdent indent ',
-                resize: false,
-              }}
-              onEditorChange={handleEditorChange}
-            />
-          </EditorBox>
-          <ButtonBox>
-            <StyledButton mode="cancle">취소</StyledButton>
-            <StyledButton mode="submit" onClick={storeFormData}>
-              등록
-            </StyledButton>
-          </ButtonBox>
-        </DetailInfo>
       </Wrapper>
     </>
   );
@@ -484,30 +465,46 @@ const Creation: FunctionComponent = () => {
 
 export default Creation;
 
-const Card_List = [
-  { ingredient: 'tomato', name: '적극적인 토마토' },
-  { ingredient: 'lettuce', name: '수용적인 양상추' },
-  { ingredient: 'paprika', name: '도전적인 파프리카' },
-  { ingredient: 'broccoli', name: '안정적인 브로콜리' },
-  { ingredient: 'avocado', name: '리더쉽의 아보카도' },
-  { ingredient: 'olives', name: '책임감의 올리브' },
-  { ingredient: 'mayo', name: '계획적인 마요네즈' },
-  { ingredient: 'balsamic', name: '즉흥적인 발사믹' },
-  { ingredient: 'salmon', name: '사교적인 연어' },
-  { ingredient: 'bacon', name: '워커홀릭 베이컨' },
-];
-
 const Wrapper = styled.div`
   ${({ theme }) => theme.wrapper()}
+
+  @media screen and ${devices.laptop} {
+    overflow-x: hidden;
+    width: 900px;
+  }
+
+  @media screen and ${devices.tablet} {
+    width: 720px;
+  }
+
+  @media screen and ${devices.mobile} {
+    width: 500px;
+  }
 `;
 
 //BasicInfo
 const BasicInfo = styled.div`
-  margin: 140px 0 160px 0;
+  margin: 120px 0 160px 0;
+
+  @media screen and ${devices.laptop} {
+    margin: 100px 20px 160px 20px;
+  }
+
+  @media screen and ${devices.tablet} {
+    margin: 100px 20px 160px 20px;
+  }
 `;
 
 const Title = styled.h1`
   font-size: 35px;
+
+  @media screen and ${devices.laptop} {
+    font-size: ${theme.fontMedium};
+  }
+
+  @media screen and ${devices.tablet} {
+    font-size: ${theme.fontSemiMedium};
+  }
 `;
 
 const Num = styled.span`
@@ -520,6 +517,18 @@ const Num = styled.span`
   border-radius: 50%;
   color: #fff;
   background-color: ${theme.mainGreen};
+
+  @media screen and ${devices.laptop} {
+    width: 40px;
+    height: 40px;
+    line-height: 40px;
+  }
+
+  @media screen and ${devices.tablet} {
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+  }
 `;
 
 const Line = styled.div`
@@ -531,34 +540,51 @@ const Line = styled.div`
 
 const MiddleLine = styled.div`
   width: 100%;
-  height: 1px;
-  margin-top: -150px;
+  margin-top: -120px;
 `;
 
 const Main = styled.main`
   display: flex;
+
+  @media screen and ${devices.tablet} {
+    display: block;
+  }
 `;
 
 const SelectList = styled.ul`
   width: 690px;
+
+  @media screen and ${devices.mobile} {
+    width: 480px;
+  }
 `;
 
-const ListItem = styled.li`
+const ListItem = styled(Item)`
   position: relative;
   font-family: ‘Black Han Sans’, sans-serif;
-  margin: 30px 0;
+  margin: 30px 15px 30px 0;
 `;
 
-const Label = styled.label`
+const StyledLabel = styled.div`
+  font-family: ‘Black Han Sans’, sans-serif;
   font-size: ${theme.fontSemiMedium};
   font-weight: ${theme.weightMiddle};
+  width: 200px;
+  text-align: left;
+
+  @media screen and ${devices.tablet} {
+    font-size: 17px;
+    margin-left: 20px;
+  }
+
+  @media screen and ${devices.mobile} {
+    font-size: 15px;
+  }
 `;
 
 const StyledSelect = styled(Select)`
-  position: absolute;
   padding: 0 10px;
-  right: 50px;
-  width: 340px;
+  right: 0px;
   height: 35px;
   border: 1px transparent solid;
   border-radius: 3px;
@@ -568,15 +594,15 @@ const StyledSelect = styled(Select)`
 
 const StyledCircle = styled(VscCircleOutline)`
   font-size: ${theme.fontSmall};
+
+  @media screen and ${devices.mobile} {
+    font-size: 11px;
+  }
 `;
 
 const ContactInput = styled.input`
-  display: block;
-  font-family: ‘Black Han Sans’, sans-serif;
   padding: 0 10px 0 20px;
-  margin: 30px 0;
-  transform: translateX(300px);
-  width: 340px;
+  width: 100%;
   height: 35px;
   border: 1px transparent solid;
   border-radius: 3px;
@@ -585,21 +611,45 @@ const ContactInput = styled.input`
 `;
 
 const TagBox = styled.div`
+  font-family: 'Jua';
   position: relative;
   padding: 0 10px;
-  transform: translate(270px, -30px);
+  transform: translate(180px, -30px);
   width: 100%;
+
+  @media screen and ${devices.laptop} {
+    transform: translate(240px, -30px);
+  }
+
+  @media screen and ${devices.tablet} {
+    transform: translate(-10px, 10px);
+  }
+
+  @media screen and ${devices.mobile} {
+    width: 95%;
+  }
 `;
 
 const CardList = styled.div`
   transform: translateX(10px);
   position: absolute;
   width: 100%;
+
+  @media screen and ${devices.laptop} {
+    transform: translateX(-50px);
+    width: 120%;
+  }
+
+  @media screen and ${devices.tablet} {
+    position: relative;
+    width: 95%;
+    transform: translate(20px, 10px);
+  }
 `;
 
 const CardBox = styled.div`
   position: relative;
-  margin: 12px 0;
+  margin: 12px 0 0 0;
   border: transparant 1px solid;
   border-radius: 10px;
   background: #f4f5f7;
@@ -614,18 +664,15 @@ const CardBoxLabel = styled.span`
 `;
 
 const StyledDatePicker = styled(DatePicker)`
-  position: absolute;
   padding: 0 10px 0 20px;
-  right: 50px;
-  font-family: ‘Black Han Sans’, sans-serif;
-  width: 340px;
+  width: 100%;
   height: 35px;
   border: 1px transparent solid;
   border-radius: 3px;
   background-color: #f4f5f7;
 `;
 
-const Button = styled.button`
+const PickButton = styled.button`
   font-family: ‘Black Han Sans’, sans-serif;
   margin: 10px 0 10px 20px;
   display: block;
@@ -638,28 +685,53 @@ const Button = styled.button`
   font-weight: ${theme.weightBold};
   background-color: ${theme.mainViolet};
   cursor: pointer;
+
+  @media screen and ${devices.laptop} {
+    transform: translate(-70px, -10px);
+  }
+
+  @media screen and ${devices.tablet} {
+    transform: translate(0px, 0px);
+    font-size: 12px;
+  }
 `;
 
-const ControlBox = styled.div`
+const FlavorBox = styled.div`
   margin: 25px 0;
-  padding: 40px;
+  padding: 30px;
   width: 350px;
-  height: 335px;
+  height: 350px;
   background-color: #f4f5f7;
   border-radius: 3px;
   box-shadow: 7px 5px 7px -6px #4e4e4e;
+
+  @media screen and ${devices.tablet} {
+    margin-top: 50px;
+    transform: translateX(50%);
+  }
+
+  @media screen and ${devices.mobile} {
+    margin-top: 50px;
+    transform: translateX(50px);
+    padding: 20px;
+    height: 320px;
+  }
 `;
 
-const ControlTitle = styled.h2`
+const FlavorTitle = styled.h2`
   font-size: ${theme.fontSemiMedium};
   text-align: center;
+
+  @media screen and ${devices.mobile} {
+    font-size: ${theme.fontSmall};
+  }
 `;
 
-const ControlList = styled.ul`
+const FlavorList = styled.ul`
   margin: 30px 0;
 `;
 
-const ControlListItem = styled.li`
+const FlavorListItem = styled.li`
   display: flex;
   margin: 30px 0;
 `;
@@ -676,6 +748,13 @@ const Description = styled.div`
     margin-top: 15px;
     font-size: 14px;
   }
+
+  @media screen and ${devices.mobile} {
+    font-size: 14px;
+    span {
+      font-size: 12px;
+    }
+  }
 `;
 
 const Chili = styled.img`
@@ -689,14 +768,39 @@ const Chili = styled.img`
 
 // DetailInfo
 const DetailInfo = styled.div`
-  font-family: ‘Black Han Sans’, sans-serif;
-  position: relative;
   margin: 80px 0;
+
+  @media screen and ${devices.laptop} {
+    margin: 80px 20px 100px 20px;
+  }
+
+  @media screen and ${devices.tablet} {
+    margin: 70px 20px 100px 20px;
+  }
+
+  @media screen and ${devices.mobile} {
+    margin-top: 20px;
+  }
+`;
+
+const TitleLabel = styled.div`
+  font-family: ‘Black Han Sans’, sans-serif;
+  font-size: ${theme.fontSemiMedium};
+  font-weight: ${theme.weightMiddle};
+
+  @media screen and ${devices.tablet} {
+    font-size: 17px;
+    margin-left: 20px;
+  }
+
+  @media screen and ${devices.mobile} {
+    font-size: 15px;
+  }
 `;
 
 const TitleInput = styled.input`
+  display: block;
   font-family: ‘Black Han Sans’, sans-serif;
-  margin: 20px 0;
   padding: 20px;
   width: 100%;
   height: 40px;
@@ -721,16 +825,18 @@ const ButtonBox = styled.div`
   bottom: -60px;
 `;
 
-const StyledButton = styled.button<{ mode: string }>`
+const StyledButton = styled(Button)`
   margin: 0 10px;
   padding: 10px;
   width: 80px;
+  height: 50px;
   font-size: ${theme.fontRegular};
   font-weight: ${theme.weightSemiBold};
-  border: 0;
   border-radius: 3px;
-  background-color: ${(props) =>
-    props.mode === 'submit' ? theme.mainGreen : '#99999'};
-  color: ${(props) => (props.mode === 'submit' ? '#fff' : 'black')};
-  cursor: pointer;
+  border: 0;
+
+  @media screen and ${devices.tablet} {
+    width: 60px;
+    font-size: ${theme.fontSmall};
+  }
 `;

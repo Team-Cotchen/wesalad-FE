@@ -1,23 +1,23 @@
 import React, { FunctionComponent } from 'react';
 import styled from 'styled-components';
 import theme from 'styles/theme';
+import { devices } from 'styles/devices';
 
 interface CardProps {
   id?: string;
   ingredient?: string;
   name?: string;
-  handleSelectedCards?: (e: React.MouseEvent<HTMLElement>) => void;
+  paintCard?: (e: React.MouseEvent<HTMLElement>) => void;
   isAdditional?: boolean;
   isPrimary?: boolean;
   size?: string;
-  type?: () => 'additional' | 'primary' | undefined;
+  type?: 'additional' | 'primary' | undefined;
   image_url?: string;
 }
 
 const Card: FunctionComponent<CardProps> = ({
-  ingredient,
   name,
-  handleSelectedCards,
+  paintCard,
   isAdditional,
   isPrimary,
   id,
@@ -27,13 +27,13 @@ const Card: FunctionComponent<CardProps> = ({
 }: CardProps) => {
   return (
     <CardWrapper
-      onClick={handleSelectedCards}
+      onClick={paintCard}
       id={id}
       className="wrapper"
       isAdditional={isAdditional}
       isPrimary={isPrimary}
       size={size}
-      type={type ? type() : undefined}
+      type={type}
     >
       <Center>
         <Icon src={image_url} />
@@ -69,6 +69,17 @@ const CardWrapper = styled.div<{
   border-radius: 20px;
   background: white;
   cursor: pointer;
+
+  @media screen and ${devices.tablet} {
+    font-size: ${theme.fontSmall};
+    padding: 6px;
+    width: 155px;
+  }
+
+  @media screen and ${devices.mobile} {
+    width: 146px;
+    padding: 5px;
+  }
 `;
 
 const Center = styled.div`

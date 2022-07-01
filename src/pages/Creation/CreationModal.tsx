@@ -8,85 +8,102 @@ import React, {
 import styled from 'styled-components';
 
 import Card from 'components/Card';
+import { devices } from 'styles/devices';
 
-import theme from '../../styles/theme';
+import theme from 'styles/theme';
 import logo from 'assets/images/logo.png';
 import { GrFormClose } from 'react-icons/gr';
 
-interface ModalProps {
-  setIsModalOpen: Dispatch<SetStateAction<boolean>>;
+interface Props {
   additionalCards: string[];
   primaryCards: string[];
+  setIsModalOpen: Dispatch<SetStateAction<boolean>>;
   setAdditionalCards: Dispatch<SetStateAction<string[]>>;
   setPrimaryCards: Dispatch<SetStateAction<string[]>>;
+  CARD_LIST: { image_url: string; name: string }[];
 }
 
-const CreationModal: FunctionComponent<ModalProps> = ({
+const CreationModal: FunctionComponent<Props> = ({
   additionalCards,
   primaryCards,
   setAdditionalCards,
   setPrimaryCards,
   setIsModalOpen,
-}: ModalProps) => {
-  const [clickedModalIndex, setClickedModalIndex] = useState<number>(0);
+  CARD_LIST,
+}: Props) => {
+  const [currentSelection, setCurrentSelection] = useState<
+    'primary' | 'additional'
+  >('primary');
 
-  const closeModal = () => {
-    setIsModalOpen(false);
+  const handleCard = (e: React.MouseEvent<HTMLElement>) => {
+    const selectedCard =
+      (e.target as Element).closest('.wrapper')?.id || 'card';
+
+    currentSelection === 'primary'
+      ? handlePrimary(selectedCard)
+      : handleAdditional(selectedCard);
   };
 
-  const handlePrimaryCards = (selectedCard: string) => {
-    const isPrimary = primaryCards.includes(selectedCard);
+  const handlePrimary = (card: string) => {
+    const isPrimary = primaryCards.includes(card);
+    const isAdditional = additionalCards.includes(card);
+    const requiredChoices = 3;
+    const finished = primaryCards.length >= requiredChoices;
 
-    if (primaryCards.length <= 2) {
+    if (!finished) {
       isPrimary
-        ? setPrimaryCards(primaryCards.filter((item) => item !== selectedCard))
-        : setPrimaryCards([...primaryCards, selectedCard]);
+        ? setPrimaryCards(primaryCards.filter((item) => item !== card))
+        : setPrimaryCards([...primaryCards, card]);
     }
 
-    if (primaryCards.length === 3 && isPrimary) {
-      setPrimaryCards(primaryCards.filter((item) => item !== selectedCard));
+    if (finished && isPrimary) {
+      setPrimaryCards(primaryCards.filter((item) => item !== card));
     }
 
-    if (additionalCards.includes(selectedCard)) {
-      setAdditionalCards(
-        additionalCards.filter((item) => item !== selectedCard),
-      );
-    }
-  };
-
-  const handleAdditionalCards = (selectedCard: string) => {
-    const isAdditional = additionalCards.includes(selectedCard);
-
-    if (!primaryCards.includes(selectedCard)) {
-      isAdditional
-        ? setAdditionalCards(
-            additionalCards.filter((item) => item !== selectedCard),
-          )
-        : setAdditionalCards([...additionalCards, selectedCard]);
+    // When selecting again after selection is completed
+    if (isAdditional) {
+      setAdditionalCards(additionalCards.filter((item) => item !== card));
     }
   };
 
-  const handleSelectedCards = (e: React.MouseEvent<HTMLElement>) => {
-    const selected = (e.target as Element).closest('.wrapper');
+  const handleAdditional = (card: string) => {
+    const isAdditional = additionalCards.includes(card);
+    const isPrimary = primaryCards.includes(card);
 
-    const selectedCard = selected?.id || 'card';
-
-    clickedModalIndex === 0
-      ? handlePrimaryCards(selectedCard)
-      : handleAdditionalCards(selectedCard);
+    !isPrimary &&
+      (isAdditional
+        ? setAdditionalCards(additionalCards.filter((item) => item !== card))
+        : setAdditionalCards([...additionalCards, card]));
   };
 
-  const goToNextOption = () => {
-    if (primaryCards.length !== 3) {
+  const goToNextSelection = () => {
+    const requiredChoices = 3;
+    const finished = primaryCards.length >= requiredChoices;
+
+    if (!finished) {
       message.warn('3가지의 메인 카드를 골라주세요.');
       return;
     }
-    setClickedModalIndex((prev) => prev + 1);
+
+    setCurrentSelection('additional');
   };
 
   const showSuccessMsg = () => {
     message.success('성향카드들이 선택되었습니다!');
     closeModal();
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const getCardType = (card: string) => {
+    if (primaryCards.includes(card)) return 'primary';
+    else if (
+      additionalCards.includes(card) &&
+      currentSelection === 'additional'
+    )
+      return 'additional';
   };
 
   return (
@@ -98,7 +115,7 @@ const CreationModal: FunctionComponent<ModalProps> = ({
           <CloseBtn onClick={closeModal} />
         </ModalNav>
         <Main>
-          {clickedModalIndex === 0 ? (
+          {currentSelection === 'primary' ? (
             <Label>
               팀 성향을 대표할 수 있는 <span>세 가지</span>의 카드를 골라주세요.
               <Description>
@@ -117,27 +134,22 @@ const CreationModal: FunctionComponent<ModalProps> = ({
           )}
 
           <CardBox>
-            {Card_List.map(({ ingredient, name }, index) => (
+            {CARD_LIST?.map(({ image_url, name }, index) => (
               <Card
                 id={name}
                 key={name + index}
-                ingredient={ingredient}
+                image_url={image_url}
                 name={name}
-                handleSelectedCards={handleSelectedCards}
-                type={() => {
-                  if (primaryCards.includes(name)) return 'primary';
-                  else if (
-                    additionalCards.includes(name) &&
-                    clickedModalIndex === 1
-                  )
-                    return 'additional';
-                }}
+                paintCard={handleCard}
+                type={getCardType(name)}
               />
             ))}
           </CardBox>
         </Main>
         <SubmitBtn
-          onClick={clickedModalIndex === 0 ? goToNextOption : showSuccessMsg}
+          onClick={
+            currentSelection === 'primary' ? goToNextSelection : showSuccessMsg
+          }
         >
           선택 완료!
         </SubmitBtn>
@@ -147,19 +159,6 @@ const CreationModal: FunctionComponent<ModalProps> = ({
 };
 
 export default CreationModal;
-
-const Card_List = [
-  { ingredient: 'tomato', name: '적극적인 토마토' },
-  { ingredient: 'lettuce', name: '수용적인 양상추' },
-  { ingredient: 'paprika', name: '도전적인 파프리카' },
-  { ingredient: 'broccoli', name: '안정적인 브로콜리' },
-  { ingredient: 'avocado', name: '리더쉽의 아보카도' },
-  { ingredient: 'olives', name: '책임감의 올리브' },
-  { ingredient: 'mayo', name: '계획적인 마요네즈' },
-  { ingredient: 'balsamic', name: '즉흥적인 발사믹' },
-  { ingredient: 'salmon', name: '사교적인 연어' },
-  { ingredient: 'bacon', name: '워커홀릭 베이컨' },
-];
 
 const Wrapper = styled.div`
   position: fixed;
@@ -180,6 +179,14 @@ const ModalBox = styled.div`
   height: 550px;
   background-color: #fff;
   border-radius: 3px;
+
+  @media screen and ${devices.tablet} {
+    width: 460px;
+  }
+
+  @media screen and ${devices.mobile} {
+    width: 435px;
+  }
 `;
 
 const ModalNav = styled.nav`
@@ -194,6 +201,14 @@ const ModalNav = styled.nav`
   font-weight: ${theme.weightBold};
   border: 0;
   background-color: #d9d9d9;
+
+  @media screen and ${devices.tablet} {
+    width: 460px;
+  }
+
+  @media screen and ${devices.mobile} {
+    width: 435px;
+  }
 `;
 
 const Logo = styled.img`
@@ -215,6 +230,14 @@ const Main = styled.main`
   margin: 80px 30px 10px 30px;
   height: 530px;
   font-size: ${theme.fontSemiMedium};
+
+  @media screen and ${devices.tablet} {
+    font-size: ${theme.fontRegular};
+  }
+
+  @media screen and ${devices.mobile} {
+    font-size: ${theme.fontSmall};
+  }
 `;
 
 const Label = styled.label`

@@ -34,8 +34,6 @@ const Nav = () => {
     navigate('/creation');
   };
 
-  console.log(modalVisible);
-
   return (
     <Wrapper>
       <NavBox>

@@ -1,38 +1,20 @@
 export interface DetailModel {
   id: number;
   category: '스터디' | '프로젝트';
-  post_answer: [
-    {
-      is_primary: boolean;
-      answer: {
-        question: string;
-        content: string;
-        description: string;
-        image_url: string;
-      };
-    },
-    {
-      is_primary: false;
-      answer: {
-        question: string;
-        content: string;
-        description: string;
-        image_url: string;
-      };
-    },
-  ];
-  post_stack: [
-    {
-      title: string;
-      image_url: string;
+  post_answer: {
+    is_primary: boolean;
+    answer: {
+      question: string;
+      content: string;
       description: string;
-    },
-    {
-      title: string;
       image_url: string;
-      description: string;
-    },
-  ];
+    };
+  }[];
+  post_stack: {
+    title: string;
+    image_url: string;
+    description: string;
+  }[];
   post_applyway: [
     {
       title: '이메일' | '문자메세지' | '카카오톡 오픈채팅';
