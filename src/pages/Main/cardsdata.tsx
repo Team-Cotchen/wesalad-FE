@@ -99,7 +99,7 @@ export const CARDS_DATA = [
     ],
     created_at: '2022-06-21T05:46:44.172045',
     updated_at: '2022-06-21T05:46:44.172053',
-    title: 'title01',
+    title: '언론 감시 플랫폼 같이 만드실 분 모집합니다!!',
     number_of_front: 3,
     number_of_back: 0,
     period: '3개월',
@@ -113,29 +113,6 @@ export const CARDS_DATA = [
       title: '사이드 프로젝트',
     },
     post_answer: [
-      {
-        is_primary: true,
-        answer: {
-          question: {
-            content:
-              '의견이 여러 방향으로 나누어질 때, 당신은 어떤 방향을 선호하시나요?',
-          },
-          content: '수용적인 자세로 의견을 받아들이는 편이다.',
-          description: '수용적인 양상추',
-          image_url: 'https://i.ibb.co/hyHqvp0/08-lettuce.png',
-        },
-      },
-      {
-        is_primary: true,
-        answer: {
-          question: {
-            content: '문제해결에 새로운 방법을 사용해야 할 때 어떻게 하시나요?',
-          },
-          content: '도전보단 안정적인 방법으로 진행하는 편이다.',
-          description: '안정적인 브로콜리',
-          image_url: 'https://i.ibb.co/f4Vq1Cx/10-broccoli.png',
-        },
-      },
       {
         is_primary: false,
         answer: {
@@ -237,7 +214,7 @@ export const CARDS_DATA = [
     ],
     created_at: '2022-06-21T05:46:44.211844',
     updated_at: '2022-06-21T05:46:44.211859',
-    title: 'title02',
+    title: '[스타트업] 백엔드 개발자 모집/ 굿즈 제작 대표 오픈',
     number_of_front: 2,
     number_of_back: 2,
     period: '1개월',
@@ -251,41 +228,6 @@ export const CARDS_DATA = [
       title: '스터디',
     },
     post_answer: [
-      {
-        is_primary: true,
-        answer: {
-          question: {
-            content:
-              '의견이 여러 방향으로 나누어질 때, 당신은 어떤 방향을 선호하시나요?',
-          },
-          content: '적극적으로 의견을 어필하는 편이다.',
-          description: '적극적인 토마토',
-          image_url: 'https://i.ibb.co/BnmkQsk/07-tomato.png',
-        },
-      },
-      {
-        is_primary: true,
-        answer: {
-          question: {
-            content: '문제해결에 새로운 방법을 사용해야 할 때 어떻게 하시나요?',
-          },
-          content:
-            '두려워하지 않고 도전적인 방법을 사용하는 것을 즐기는 편이다.',
-          description: '도전적인 파프리카',
-          image_url: 'https://i.ibb.co/LpDN5YK/09-paprika.png',
-        },
-      },
-      {
-        is_primary: true,
-        answer: {
-          question: {
-            content: '평소 팀에서 어떤 역할을 맡으시나요?',
-          },
-          content: '팀의 리더가되어 팀원들을 이끌어주는 것을 선호한다.',
-          description: '리더쉽의 아보카도',
-          image_url: 'https://i.ibb.co/gFrBZ0V/11-avocado.png',
-        },
-      },
       {
         is_primary: false,
         answer: {
