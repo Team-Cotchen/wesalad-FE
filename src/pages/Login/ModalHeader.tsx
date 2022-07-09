@@ -1,6 +1,6 @@
 import React, { FunctionComponent } from 'react';
 import styled from 'styled-components';
-import logo from 'assets/images/logo.jpg';
+import logo from 'assets/images/logo.png';
 import { CgClose } from 'react-icons/cg';
 
 export const ModalHeaderSection: FunctionComponent = () => {
