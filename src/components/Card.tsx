@@ -11,6 +11,7 @@ interface CardProps {
   isPrimary?: boolean;
   size?: string;
   type?: () => 'additional' | 'primary' | undefined;
+  image_url?: string;
 }
 
 const Card: FunctionComponent<CardProps> = ({
@@ -22,6 +23,7 @@ const Card: FunctionComponent<CardProps> = ({
   id,
   size,
   type,
+  image_url,
 }: CardProps) => {
   return (
     <CardWrapper
@@ -34,7 +36,7 @@ const Card: FunctionComponent<CardProps> = ({
       type={type ? type() : undefined}
     >
       <Center>
-        <Icon src={`/images/ingredients/${ingredient}.png`} />
+        <Icon src={image_url} />
         {name}
       </Center>
     </CardWrapper>
