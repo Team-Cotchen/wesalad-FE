@@ -2,7 +2,6 @@ import React, { useCallback, useState } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { IoIosArrowBack } from 'react-icons/io';
 import { FcGoogle } from 'react-icons/fc';
-import { ModalHeaderSection } from './ModalHeader';
 import { useSelector, useDispatch } from 'react-redux';
 import type { AppDispatch } from '../../redux/store';
 import logIn from '../../redux/actions/login';
@@ -20,63 +19,44 @@ const Login: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
 
   const getGoogleNumber = useCallback(() => {
+    console.log('hi');
     dispatch(logIn());
   }, []);
 
-  console.log(login);
-
   return (
     <Wrapper>
-      <ModalWrapper>
-        <ModalHeaderSection />
-        <LoginContext>
-          <TitleSection>
-            <IconSection>
-              <IoIosArrowBack className="arrow" size={30} />
-            </IconSection>
-            <Title fontSize="80px" marginBottom="40px">
-              환영합니다!
-            </Title>
-            <SubTitle fontSize="24px" marginBottom="70px">
-              우선, 로그인부터 해볼까요?
-            </SubTitle>
-            <LoginTitleSection>
-              <LoginBtn onClick={getGoogleNumber}>
-                <FcGoogle size={50} />
-                <div>구글로 로그인하기</div>
-              </LoginBtn>
-            </LoginTitleSection>
-          </TitleSection>
-        </LoginContext>
-      </ModalWrapper>
+      <TitleSection>
+        <IconSection>
+          <IoIosArrowBack className="arrow" size={30} />
+        </IconSection>
+        <Title fontSize="80px" marginBottom="40px">
+          환영합니다!
+        </Title>
+        <SubTitle fontSize="24px" marginBottom="70px">
+          우선, 로그인부터 해볼까요?
+        </SubTitle>
+        <LoginTitleSection>
+          <LoginBtn onClick={getGoogleNumber}>
+            <FcGoogle size={50} />
+            <div>구글로 로그인하기</div>
+          </LoginBtn>
+        </LoginTitleSection>
+      </TitleSection>
     </Wrapper>
   );
 };
 
 export default Login;
 
-const Wrapper = styled.section`
-  ${({ theme }) => theme.wrapper()}
-  ${({ theme }) => theme.flexMixIn('center', 'center')};
-  height: 100vh;
-`;
-
-const ModalWrapper = styled.div`
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  margin: 0px auto;
+const Wrapper = styled.div`
+  position: absolute;
+  top: 50%;
+  left: 50%;
   width: 675px;
   height: 30rem;
-
-  box-shadow: rgb(0 0 0 / 2%) -14px -14px 20px, rgb(0 0 0 / 5%) 14px 14px 20px;
+  border-radius: 5px;
   background-color: white;
-  z-index: 10;
-`;
-
-const LoginContext = styled.div`
-  height: 100%;
-  border-radius: 0px 0px 3px 3px;
+  transform: translate(-50%, -50%);
 `;
 
 const IconSection = styled.div`
@@ -120,7 +100,7 @@ const SubTitleHightLight = keyframes`
 `;
 
 const TitleSection = styled.div`
-  padding: 35px 70px 0px 70px;
+  padding: 85px 70px 85px 70px;
 `;
 
 const Title = styled.h1<ITitle>`
