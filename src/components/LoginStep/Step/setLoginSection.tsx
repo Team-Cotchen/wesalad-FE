@@ -1,73 +1,77 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback } from 'react';
 import styled, { keyframes } from 'styled-components';
-import { IoIosArrowBack } from 'react-icons/io';
 import { FcGoogle } from 'react-icons/fc';
-import { useSelector, useDispatch } from 'react-redux';
-import type { AppDispatch } from '../../redux/store';
-import logIn from '../../redux/actions/login';
-import { RootState } from '../../redux/store';
+import loginAsync from 'redux/actions/loginAsync';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from 'redux/store';
+import { ITitle, ModalProps } from 'components/LoginStep/loginStep.types';
+import { nextStep, setSignUpInfo } from 'redux/reducers/loginSlice';
+import BackButton from 'components/BackButton';
 
-export const useAppDispatch = () => useDispatch<AppDispatch>();
-
-interface ITitle {
-  fontSize: string;
-  marginBottom: string;
-}
-
-const Login: React.FC = () => {
-  const login = useSelector((state: RootState) => state.login.data);
+const setLoginSection = ({ handleClose }: ModalProps) => {
+  const loginStep = useSelector((state: RootState) => state.login.currentStep);
   const dispatch = useDispatch<AppDispatch>();
 
-  const getGoogleNumber = useCallback(() => {
-    console.log('hi');
-    dispatch(logIn());
+  const googleLogin = useCallback(async () => {
+    try {
+      const result = await dispatch(loginAsync()).unwrap();
+      const token = result.token;
+      const googleAccountId = result.id;
+      const imageUrl = result.google_account.image_url;
+
+      if (token.access !== undefined) {
+        localStorage.setItem('accessToken', token.access);
+        localStorage.setItem('refreshToken', token.refresh);
+
+        // 만료시간?
+        localStorage.setItem('expiredTime', result.updated_at);
+
+        // axios.defaults.headers.common['x-access-token'] = token.access;
+        handleClose();
+      } else {
+        dispatch(
+          setSignUpInfo({
+            key: 'imageUrl',
+            value: imageUrl,
+          }),
+        );
+
+        dispatch(
+          setSignUpInfo({
+            key: 'id',
+            value: googleAccountId,
+          }),
+        );
+
+        dispatch(nextStep(loginStep));
+      }
+    } catch (error) {
+      console.log(error);
+    }
   }, []);
 
   return (
-    <Wrapper>
-      <TitleSection>
-        <IconSection>
-          <IoIosArrowBack className="arrow" size={30} />
-        </IconSection>
+    <>
+      <LoginSection>
+        <BackButton />
         <Title fontSize="80px" marginBottom="40px">
           환영합니다!
         </Title>
         <SubTitle fontSize="24px" marginBottom="70px">
           우선, 로그인부터 해볼까요?
         </SubTitle>
-        <LoginTitleSection>
-          <LoginBtn onClick={getGoogleNumber}>
+        <BtnSection>
+          <LoginBtn onClick={googleLogin}>
             <FcGoogle size={50} />
             <div>구글로 로그인하기</div>
           </LoginBtn>
-        </LoginTitleSection>
-      </TitleSection>
-    </Wrapper>
+        </BtnSection>
+      </LoginSection>
+    </>
   );
 };
 
-export default Login;
-
-const Wrapper = styled.div`
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 675px;
-  height: 30rem;
-  border-radius: 5px;
-  background-color: white;
-  transform: translate(-50%, -50%);
-`;
-
-const IconSection = styled.div`
-  padding: 10px 20px;
-
-  .arrow {
-    position: absolute;
-    left: 15px;
-    top: 80px;
-  }
-`;
+export default setLoginSection;
 
 const TitleHightLight = keyframes`
   0% {
@@ -99,8 +103,8 @@ const SubTitleHightLight = keyframes`
   }
 `;
 
-const TitleSection = styled.div`
-  padding: 85px 70px 85px 70px;
+const LoginSection = styled.div`
+  padding: calc(198px / 2) 70px;
 `;
 
 const Title = styled.h1<ITitle>`
@@ -141,7 +145,7 @@ const SubTitle = styled.h1<ITitle>`
   }
 `;
 
-const LoginTitleSection = styled.div`
+const BtnSection = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;

@@ -1,20 +1,20 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import logo from 'assets/images/logo.png';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { setModalVisible } from '../redux/reducers/joinSlice';
-import { RootState } from '../redux/store';
+import { setModalVisible, clearStep } from 'redux/reducers/loginSlice';
+import { RootState } from 'redux/store';
 import Modal from './Modal/Modal';
-import LoginModal from '../pages/Login/Login';
+import LoginModal from '../components/LoginStep/LoginModal';
+import API from 'config';
 
 const Nav = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
+  const isGetToken = window.localStorage.getItem('accessToken') === null;
   const navigate = useNavigate();
-
   const dispatch = useDispatch();
   const modalVisible = useSelector(
-    (state: RootState) => state.join.modalVisible,
+    (state: RootState) => state.login.modalVisible,
   );
 
   const openModal = () => {
@@ -28,10 +28,14 @@ const Nav = () => {
   };
 
   const checkIfLoggedIn = () => {
-    if (!isLoggedIn) {
-      return;
-    }
-    navigate('/creation');
+    if (!isGetToken) navigate('/creation');
+    else openModal();
+  };
+
+  const handleLogout = async () => {
+    dispatch(clearStep());
+    localStorage.clear();
+    navigate('/');
   };
 
   return (
@@ -43,11 +47,15 @@ const Nav = () => {
         </NavLeft>
         <NavRight>
           <NewPost onClick={() => checkIfLoggedIn()}>새 글 쓰기</NewPost>
-          <Login onClick={openModal}>로그인</Login>
+          {!isGetToken ? (
+            <Login onClick={handleLogout}>로그아웃</Login>
+          ) : (
+            <Login onClick={openModal}>로그인</Login>
+          )}
         </NavRight>
       </NavBox>
       <Modal name="login" onClose={closeModal} visible={modalVisible}>
-        <LoginModal></LoginModal>
+        <LoginModal handleClose={closeModal} />
       </Modal>
     </Wrapper>
   );

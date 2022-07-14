@@ -191,13 +191,12 @@ const Header = styled.header`
 `;
 
 const HeaderTitle = styled.h1`
-position :relative;
-display : inline-block;
-margin : 20px 0;
-padding-left : 30px;
+  position: relative;
+  display: inline-block;
+  margin: 20px 0;
+  padding-left: 30px;
   font-size: 40px;
-  font-weight : ${theme.weightSemiBold};
-  }
+  font-weight: ${theme.weightSemiBold};
 `;
 
 const TitleLine = styled.div`
@@ -316,8 +315,8 @@ const Stackimage = styled.img`
 const Content = styled.div``;
 
 const ExternalLink = styled.a`
-text-decoration = 'none';
-color : black
+  text-decoration: 'none';
+  color: black;
 `;
 
 //Personality List
@@ -326,9 +325,9 @@ const PersonalityList = styled.div`
 `;
 
 const CardBox = styled.div`
-margin-top: 30px;
-padding-bottom 20px;
-border-radius: 3px;
+  margin-top: 30px;
+  padding-bottom: 20px;
+  border-radius: 3px;
 `;
 
 const SemiTitle = styled.h3`
