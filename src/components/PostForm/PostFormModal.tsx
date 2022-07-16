@@ -23,7 +23,7 @@ interface Props {
   CARD_LIST: { image_url: string; name: string }[];
 }
 
-const CreationModal: FunctionComponent<Props> = ({
+const PostFormModal: FunctionComponent<Props> = ({
   additionalCards,
   primaryCards,
   setAdditionalCards,
@@ -158,7 +158,7 @@ const CreationModal: FunctionComponent<Props> = ({
   );
 };
 
-export default CreationModal;
+export default PostFormModal;
 
 const Wrapper = styled.div`
   position: fixed;

@@ -5,6 +5,7 @@ import Login from 'pages/Login/Login';
 import Join from 'pages/Join/Join';
 import Main from 'pages/Main/Main';
 import Creation from 'pages/Creation/Creation';
+import Edit from 'pages/Edit/Edit';
 
 const Router = () => {
   return (
@@ -15,6 +16,7 @@ const Router = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/join" element={<Join />} />
         <Route path="/creation" element={<Creation />} />
+        <Route path="edit/:id" element={<Edit />} />
       </Routes>
     </BrowserRouter>
   );
