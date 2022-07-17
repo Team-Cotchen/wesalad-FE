@@ -72,17 +72,41 @@
       "image_url": "https://i.ibb.co/BnmkQsk/07-tomato.png",
       "name": "적극적인 토마토"
     },
-    { "image_url": "lettuce", "name": "수용적인 양상추" },
-    { "image_url": "paprika", "name": "도전적인 파프리카" },
-    { "image_url": "broccoli", "name": "안정적인 브로콜리" },
-    { "image_url": "avocado", "name": "리더쉽의 아보카도" },
+    {
+      "image_url": "https://i.ibb.co/hyHqvp0/08-lettuce.png",
+      "name": "수용적인 양상추"
+    },
+    {
+      "image_url": "https://i.ibb.co/LpDN5YK/09-paprika.png",
+      "name": "도전적인 파프리카"
+    },
+    {
+      "image_url": "https://i.ibb.co/f4Vq1Cx/10-broccoli.png",
+      "name": "안정적인 브로콜리"
+    },
+    {
+      "image_url": "https://i.ibb.co/gFrBZ0V/11-avocado.png",
+      "name": "리더쉽의 아보카도"
+    },
     {
       "image_url": "https://i.ibb.co/XX9H948/12-olives.png",
       "name": "책임감의 올리브"
     },
-    { "image_url": "mayo", "name": "계획적인 마요네즈" },
-    { "image_url": "balsamic", "name": "즉흥적인 발사믹" },
-    { "image_url": "salmon", "name": "사교적인 연어" },
-    { "image_url": "bacon", "name": "워커홀릭 베이컨" }
+    {
+      "image_url": "https://i.ibb.co/FgNDzdW/13-mayo.png",
+      "name": "계획적인 마요네즈"
+    },
+    {
+      "image_url": "https://i.ibb.co/Sn7jtj8/14-balsamic.png",
+      "name": "즉흥적인 발사믹"
+    },
+    {
+      "image_url": "https://i.ibb.co/D5gVvqG/16-salmon.png",
+      "name": "사교적인 연어"
+    },
+    {
+      "image_url": "https://i.ibb.co/Tvx2Fd2/15-bacon.png",
+      "name": "워커홀릭 베이컨"
+    }
   ]
 }

@@ -1,5 +1,3 @@
-import type { Dayjs } from 'dayjs';
-
 export interface OptionModel {
   CATEGORY: string[];
   PLACE: string[];
@@ -12,14 +10,21 @@ export interface OptionModel {
 }
 
 export interface FormModel {
+  category: string;
+  stacks: string[];
   applyway: string;
   applyway_info: string;
-  category: string;
-  number_of_back: string;
-  number_of_front: string;
-  period: string;
   place: string;
-  stacks: string[];
-  start_date: Dayjs;
   title: string;
+  number_of_front: string;
+  number_of_back: string;
+  period: string;
+  start_date: moment.Moment;
+}
+
+export interface PostModel {
+  fields: FormModel;
+  description: string;
+  primary: string[];
+  additional: string[];
 }
