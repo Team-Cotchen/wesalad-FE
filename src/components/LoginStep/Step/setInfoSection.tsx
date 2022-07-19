@@ -21,10 +21,7 @@ const setInfoSection = ({ handleBasicInfo, handleLoginStep }: IInfoSection) => {
           우선, 추가정보를 입력해주세요.
         </SubTitle>
         <UserDetailInfo>
-          <Profile
-            alt="profile"
-            src="https://avatars.githubusercontent.com/u/56650238?v=4"
-          ></Profile>
+          <Profile alt="profile" src={imageUrl}></Profile>
           <Form>
             <DetailTitle>기수</DetailTitle>
             <input
