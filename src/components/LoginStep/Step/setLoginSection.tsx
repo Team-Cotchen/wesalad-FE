@@ -7,6 +7,7 @@ import { AppDispatch, RootState } from 'redux/store';
 import { ITitle, ModalProps } from 'components/LoginStep/loginStep.types';
 import { nextStep, setSignUpInfo } from 'redux/reducers/loginSlice';
 import BackButton from 'components/BackButton';
+import { devices } from 'styles/devices';
 
 const setLoginSection = ({ handleClose }: ModalProps) => {
   const loginStep = useSelector((state: RootState) => state.login.currentStep);
@@ -104,7 +105,7 @@ const SubTitleHightLight = keyframes`
 `;
 
 const LoginSection = styled.div`
-  padding: calc(198px / 2) 70px;
+  padding: 4rem;
 `;
 
 const Title = styled.h1<ITitle>`
@@ -122,6 +123,14 @@ const Title = styled.h1<ITitle>`
     transform: translateY(-40px);
     z-index: -100;
     animation: ${TitleHightLight} 1.5s linear;
+  }
+
+  @media ${devices.laptop} {
+    font-size: 60px;
+  }
+
+  @media ${devices.tablet} {
+    font-size: ${({ theme }) => theme.fontLarge};
   }
 `;
 
@@ -142,6 +151,10 @@ const SubTitle = styled.h1<ITitle>`
     animation: ${SubTitleHightLight} 1.5s linear;
     animation-delay: 1s;
     animation-fill-mode: forwards;
+
+    @media ${devices.laptop} {
+      display: none;
+    }
   }
 `;
 
@@ -160,6 +173,10 @@ const LoginBtn = styled.button`
   font-size: ${({ theme }) => theme.fontMedium};
   font-weight: ${({ theme }) => theme.weightBold};
   cursor: pointer;
+
+  @media ${devices.tablet} {
+    font-size: ${({ theme }) => theme.fontSemiMedium};
+  }
 
   div {
     height: 50px;

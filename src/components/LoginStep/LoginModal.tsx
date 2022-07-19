@@ -12,9 +12,9 @@ import { nextStep } from 'redux/reducers/loginSlice';
 import { RootState } from 'redux/store';
 import axios from 'axios';
 import API from 'config';
-
 import 'antd/dist/antd.min.css';
 import { message } from 'antd';
+import { devices } from 'styles/devices';
 
 const SOCIAL_LOGIN = 1;
 const SET_JOININFO = 2;
@@ -31,7 +31,6 @@ const LoginModal = ({ handleClose }: ModalProps) => {
   const dispatch = useDispatch();
   const loginStep = useSelector((state: RootState) => state.login.currentStep);
   const id = useSelector((state: RootState) => state.login.id);
-
   const [questionNum, setQuestionNum] = useState<number>(0);
   const [basicInfo, setBasicInfo] = useState<IBasicInfo>({
     name: '',
@@ -137,9 +136,21 @@ const Wrapper = styled.div`
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 675px;
+  width: 42rem;
   height: 30rem;
   border-radius: 5px;
   background-color: white;
   transform: translate(-50%, -50%);
+
+  @media ${devices.laptop} {
+    width: 32rem;
+  }
+
+  @media ${devices.tablet} {
+    width: 28rem;
+  }
+
+  @media ${devices.mobile} {
+    width: 25rem;
+  }
 `;
