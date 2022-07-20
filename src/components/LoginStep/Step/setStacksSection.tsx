@@ -8,6 +8,7 @@ import { ITitle, IInfoSection } from 'components/LoginStep/loginStep.types';
 import 'antd/dist/antd.min.css';
 const { Option } = Select;
 import BackButton from 'components/BackButton';
+import { devices } from 'styles/devices';
 
 const setStacksSection = ({
   handleBasicInfo,
@@ -20,13 +21,13 @@ const setStacksSection = ({
       <StacksSection>
         <BackButton />
         <Header>
-          <Title fontSize="2rem" marginBottom="20px">
+          <Title fontSize="2rem" marginBottom="8px">
             {name}님, 궁금한게 있어요.
           </Title>
           <Title fontSize="2rem" marginBottom="20px">
             언어, 프레임워크를 선택해주세요!
           </Title>
-          <SubTitle fontSize="1rem" marginBottom="0px">
+          <SubTitle fontSize="1.2rem" marginBottom="0px">
             관심 태그를 기반으로 소식을 추천해드려요.
           </SubTitle>
         </Header>
@@ -87,7 +88,7 @@ const setStacksSection = ({
 export default setStacksSection;
 
 const StacksSection = styled.div`
-  padding: calc(113px / 2) 70px;
+  padding: 2.5rem 4rem;
 `;
 
 const Header = styled.div`
@@ -98,6 +99,14 @@ const Title = styled.h1<ITitle>`
   font-size: ${({ fontSize }) => fontSize};
   margin-bottom: ${({ marginBottom }) => marginBottom};
   text-align: center;
+
+  @media ${devices.laptop} {
+    font-size: ${({ theme }) => theme.fontMedium};
+  }
+
+  @media ${devices.tablet} {
+    font-size: ${({ theme }) => theme.fontSemiMedium};
+  }
 `;
 
 const SubTitle = styled.h1<ITitle>`
@@ -106,10 +115,19 @@ const SubTitle = styled.h1<ITitle>`
   color: #d3cece;
   text-align: center;
   margin: 0px 10px 5px 0px;
+
+  @media ${devices.tablet} {
+    font-size: ${({ theme }) => theme.fontSmall};
+    margin-bottom: 10px;
+  }
 `;
 
 const TechSelectSection = styled.div`
-  padding: 30px 70px 40px 70px;
+  padding: 10px 70px 0px 70px;
+
+  @media ${devices.laptop} {
+    padding: 0px 20px;
+  }
 `;
 
 const StyledSelect = styled(Select)`
@@ -122,7 +140,7 @@ const StyledSelect = styled(Select)`
 `;
 
 const SubmitSection = styled.div`
-  margin-top: 30px;
+  margin-top: 50px;
   ${({ theme }) => theme.flexMixIn('end', 'center')}
 `;
 

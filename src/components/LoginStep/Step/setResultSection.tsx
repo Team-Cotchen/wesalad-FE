@@ -1,30 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
-import API from 'config';
-import {
-  ITitle,
-  ModalProps,
-  IfetchResultData,
-} from 'components/LoginStep/loginStep.types';
-import axios from 'axios';
+import { ITitle, ModalProps } from 'components/LoginStep/loginStep.types';
+
+import { keyframes } from 'styled-components';
+import { devices } from 'styles/devices';
 
 const setResultSection = ({ handleClose }: ModalProps) => {
-  const [tendencyResult, setTendencyResult] = useState<IfetchResultData>();
-
-  const fetchByUserResult = async () => {
-    try {
-      const { data } = await axios.get(`${API.login}`);
-
-      setTendencyResult(data);
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
-  useEffect(() => {
-    fetchByUserResult();
-  }, []);
-
   return (
     <>
       <ResultSection>
@@ -32,18 +13,10 @@ const setResultSection = ({ handleClose }: ModalProps) => {
           <Title fontSize="80px" marginBottom="20px">
             감사합니다!
           </Title>
-          <SubTitle fontSize="30px" marginBottom="20px">
-            결과는 다음과 같아요
-          </SubTitle>
         </Header>
-        <ResultWindowSection>
-          {tendencyResult?.user_answers.map((item, i) => {
-            return <Card key={i}>{item.answer.description}</Card>;
-          })}
-        </ResultWindowSection>
         <SubmitSection>
           <SubmitBtn mode="submit" onClick={handleClose}>
-            완료
+            시작하기
           </SubmitBtn>
         </SubmitSection>
       </ResultSection>
@@ -53,37 +26,60 @@ const setResultSection = ({ handleClose }: ModalProps) => {
 
 export default setResultSection;
 
+const TitleHightLight = keyframes`
+  0% {
+    width:0%;
+    box-shadow: inset 0 -25px #2de466;
+  }
+  50% {
+    width:30%;
+    box-shadow: inset 0 -25px #2de466;
+  }
+  100% {
+    width:60%;
+    box-shadow: inset 0 -25px #2de466;
+  }
+`;
+
 const ResultSection = styled.div`
-  padding: calc(100px / 2) 70px;
+  padding: 9rem 4rem 0 4rem;
 `;
 
 const Header = styled.div``;
 
 const Title = styled.h1<ITitle>`
-  font-size: ${({ fontSize }) => fontSize};
   margin-bottom: ${({ marginBottom }) => marginBottom};
-  text-align: start;
-`;
-
-const SubTitle = styled.h1<ITitle>`
   font-size: ${({ fontSize }) => fontSize};
-  font-weight: ${({ theme }) => theme.weightBold};
   text-align: start;
-  margin-bottom: ${({ marginBottom }) => marginBottom};
-`;
 
-const ResultWindowSection = styled.div`
-  background: '#2DE466';
-  padding: 10px 20px;
-  border-radius: 30px;
+  &:after {
+    content: '';
+    display: block;
+    width: 60%;
+    height: 40px;
+    position: absolute;
+    background: #2de466;
+    transform: translateY(-40px);
+    z-index: -100;
+    animation: ${TitleHightLight} 1.5s linear;
+  }
+
+  @media ${devices.laptop} {
+    font-size: 60px;
+  }
+
+  @media ${devices.tablet} {
+    font-size: ${({ theme }) => theme.fontLarge};
+  }
 `;
 
 const SubmitSection = styled.div`
   ${({ theme }) => theme.flexMixIn('end', 'center')}
+  margin-top : 7rem;
 `;
 
 const SubmitBtn = styled.button<{ mode: string }>`
-  width: 4rem;
+  width: 5rem;
   height: 2.5rem;
   background-color: ${({ theme }) => theme.mainGreen};
   color: white;
@@ -93,15 +89,9 @@ const SubmitBtn = styled.button<{ mode: string }>`
   font-size: ${({ theme }) => theme.fontSemiMedium};
   font-family: 'Jua', sans-serif;
   cursor: pointer;
-`;
 
-const Card = styled.li`
-  display: inline-block;
-  flex: 1;
-  padding: 20px;
-  margin: 10px 10px;
-  background: ${({ theme }) => theme.mainGreen};
-  border-radius: 10px;
-  font-size: ${({ theme }) => theme.fontSmall};
-  color: white;
+  @media ${devices.tablet} {
+    width: 5rem;
+    height: 2rem;
+  }
 `;
